@@ -1596,8 +1596,8 @@ prd.hitValue = vec3(lightIntensity * attenuation * (diffuse + specular));
 
 ![LOCAL](images/resultRaytraceShadowMedieval.png)
 
-The final project can be found under [GitHub vk_raytracing_tutorial/ray_tracing_extra](https://github.com/nvpro-samples/vk_raytracing_tutorial/ray_tracing_extra).
+The final project can be found under this directory.
 
 # Going Further
 
-See the other [tutorials](..) in the extra directories. They are all starting from the en of this tutorial and are adding what is necessary for the additional feature.
+See the other tutorials in the extra directories. They are all starting from the en of this tutorial and are adding what is necessary for the additional feature.
