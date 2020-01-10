@@ -6,9 +6,9 @@ Updated **December 2019**
 
 # NVIDIA Vulkan Ray Tracing Tutorial - Animation
 
-![animation](Images/animation2.gif)
+![animation](images/animation2.gif)
 
-This is an extension of the Vulkan ray tracing [tutorial](../ray_tracing__simple/README.md).
+This is an extension of the Vulkan ray tracing [tutorial](../ray_tracing__simple).
 
 We will discuss two animation methods: animating only the transformation matrices, and animating the geometry itself.
 
@@ -150,7 +150,7 @@ The last point is to call the update at the end of the function.
 m_rtBuilder.updateTlasMatrices(m_tlas);
 ~~~~
 
-![animation](Images/animation1.gif)
+![animation](images/animation1.gif)
 
 ## nvvkpp::RaytracingBuilder::updateTlasMatrices (Implementation)
 
@@ -515,4 +515,4 @@ Finally, we can add a line at the end of `HelloVulkan::animationObject()` to upd
 m_rtBuilder.updateBlas(2);
 ~~~~
 
-![animation](Images/animation2.gif)
+![animation](images/animation2.gif)

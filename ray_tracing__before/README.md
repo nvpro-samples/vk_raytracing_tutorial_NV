@@ -2,10 +2,9 @@
 
 # NVIDIA Vulkan Ray Tracing Tutorial
 
-This example is a simple OBJ viewer in Vulkan, without any ray tracing functionality. iT is the starting point of the [`ray tracing tutorial`](../ray_tracing__simple/README.md), the source of the application in which ray tracing will be added. 
+This example is a simple OBJ viewer in Vulkan, without any ray tracing functionality. iT is the starting point of the [`ray tracing tutorial`](../ray_tracing__simple), the source of the application in which ray tracing will be added.
 
-
-Before starting the [`tutorial`](../ray_tracing__simple/README.md), understanding the current example will help undestanding how to add the components needed for ray tracing.
+Before starting the [`tutorial`](../ray_tracing__simple), understanding the current example will help understanding how to add the components needed for ray tracing.
 
 ## Environment Setup
 

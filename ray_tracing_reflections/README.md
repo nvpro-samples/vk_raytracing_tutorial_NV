@@ -4,11 +4,11 @@ By [Martin-Karl Lefrançois](https://devblogs.nvidia.com/author/mlefrancois/), N
 
 # NVIDIA Vulkan Ray Tracing Tutorial - Reflections
 
-![reflection](Images/reflections.png)
+![reflection](images/reflections.png)
 
 # Environment Setup
 
-This is an extension of the Vulkan ray tracing [tutorial](../ray_tracing__simple/README.md).
+This is an extension of the Vulkan ray tracing [tutorial](../ray_tracing__simple).
 Please follow the steps described under the same section.
 
 # Setting Up the scene

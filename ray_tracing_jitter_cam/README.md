@@ -8,7 +8,7 @@ Updated **December 2019**
 
 ![antialiasing](images/antialiasing.png)
 
-This is an extension of the Vulkan ray tracing [tutorial](../ray_tracing__simple/README.md).
+This is an extension of the Vulkan ray tracing [tutorial](../ray_tracing__simple).
 
 In this extension, we will implement antialiasing by jittering the offset of each ray for each pixel over time, instead of always shooting each ray from the middle of its pixel.
 

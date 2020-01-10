@@ -4,9 +4,9 @@ By [Martin-Karl Lefrançois](https://devblogs.nvidia.com/author/mlefrancois/), N
 
 # NVIDIA Vulkan Ray Tracing Tutorial - Many Hits and Shader Record
 
-![manyhits](Images/manyhits.png)
+![manyhits](images/manyhits.png)
 
-This is an extension of the Vulkan ray tracing [tutorial](../ray_tracing__simple/README.md).
+This is an extension of the Vulkan ray tracing [tutorial](../ray_tracing__simple).
 
 The ray tracing tutorial only uses one closest hit shader, but it is also possible to have multiple closest hit shaders. For example, this could be used to give different models different shaders, or to use a less complex shader when tracing reflections.
 

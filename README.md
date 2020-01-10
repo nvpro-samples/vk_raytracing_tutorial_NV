@@ -16,7 +16,7 @@ Instead of having examples fully functional, those tutorial starts from a progra
 
 The first tutorial is starting from a Vulkan code example, which can load multiple OBJ and render them using the rasterizer, and adds step-by-step what is require to do ray tracing.
 
-Jump to the [tutorial](ray_tracing__simple/README.md)
+Jump to the [tutorial](ray_tracing__simple)
 
 ![resultRaytraceShadowMedieval](ray_tracing__simple/images/resultRaytraceShadowMedieval.png)
 
@@ -24,39 +24,39 @@ Jump to the [tutorial](ray_tracing__simple/README.md)
 
 From this point on, you can continue creating your own ray types and shaders, and experiment with more advanced ray tracing based algorithms.
 
-## [Jitter Camera (Anti-Aliasing)](ray_tracing_jitter_cam/README.md)
+## [Jitter Camera (Anti-Aliasing)](ray_tracing_jitter_cam)
 
 Anti-aliases the image by accumulating small variations of rays over time.
 
 ![antialiasing](ray_tracing_jitter_cam/images/antialiasing.png)
 
-## [Handle Thousands of Objects](ray_tracing_instances/README.md)
+## [Handle Thousands of Objects](ray_tracing_instances)
 
 The current example allocates memory for each object, each of which has several buffers.
 This shows how to get around Vulkan's limits on the total number of memory allocations by using a memory allocator.
 
 ![VkInstances](ray_tracing_instances/images/VkInstances.png)
 
-## [Any Hit Shader (Transparency)](ray_tracing_anyhit/README.md)
+## [Any Hit Shader (Transparency)](ray_tracing_anyhit)
 
 Implements transparent materials by adding a new shader to the Hit group and using the material
 information to discard hits over time.
 
 ![anyhit](ray_tracing_anyhit/images/anyhit.png)
 
-## [Reflections](ray_tracing_reflections/README.md)
+## [Reflections](ray_tracing_reflections)
 
 Reflections can be implemented by shooting new rays from the closest hit shader, or by iteratively shooting them from the raygen shader. This example shows the limitations and differences of these implementations.
 
 ![reflections](ray_tracing_reflections/images/reflections.png)
 
-## [Many Hits and Shader Records](ray_tracing_manyhits/README.md)
+## [Many Hits and Shader Records](ray_tracing_manyhits)
 
 Explains how to add more closest hit shaders, choose which instance uses which shader, and add data per SBT that can be retrieved in the shader, and more.
 
 ![manyhits](ray_tracing_manyhits/images/manyhits.png)
 
-## [Animation](ray_tracing_animation/README.md)
+## [Animation](ray_tracing_animation)
 
 This tutorial shows how animating the transformation matrices of the instances (TLAS) and animating the vertices of an object (BLAS) in a compute shader, could be done.
 

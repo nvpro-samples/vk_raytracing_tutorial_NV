@@ -1600,4 +1600,4 @@ The final project can be found under [GitHub vk_raytracing_tutorial/ray_tracing_
 
 # Going Further
 
-See the other [tutorials](../README.md) in the extra directories. They are all starting from the en of this tutorial and are adding what is necessary for the additional feature.
+See the other [tutorials](..) in the extra directories. They are all starting from the en of this tutorial and are adding what is necessary for the additional feature.

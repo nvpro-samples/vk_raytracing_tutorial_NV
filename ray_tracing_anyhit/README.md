@@ -6,9 +6,9 @@ Updated **December 2019**
 
 # NVIDIA Vulkan Ray Tracing Tutorial - Any Hit Shader
 
-![anyhit](Images/anyhit.png)
+![anyhit](images/anyhit.png)
 
-This is an extension of the Vulkan ray tracing [tutorial](../ray_tracing__simple/README.md).
+This is an extension of the Vulkan ray tracing [tutorial](../ray_tracing__simple).
 
 Like closest hit shaders, any hit shaders operate on intersections between rays and geometry. However, the any hit shader will be executed for all hits along the ray. The closest hit shader will then be invoked on the closest accepted intersection.
 
@@ -168,7 +168,7 @@ geometry.setFlags(vk::GeometryFlagBitsNV::eNoDuplicateAnyHitInvocation);
 
 ## `raytrace.rgen`
 
-If you have done the previous [Jitter Camera/Antialiasing](../ray_tracing_jitter_cam/README.md) tutorial,
+If you have done the previous [Jitter Camera/Antialiasing](../ray_tracing_jitter_cam) tutorial,
 you will need just a few changes.
 
 First, `seed` will need to be available in the any hit shader, which is the reason we have added it to the hitPayload structure.

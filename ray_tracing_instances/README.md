@@ -8,7 +8,7 @@ Updated **December 2019**
 
 ![instances](images/VkInstances.png)
 
-This is an extension of the Vulkan ray tracing [tutorial](../ray_tracing__simple/README.md).
+This is an extension of the Vulkan ray tracing [tutorial](../ray_tracing__simple).
 
 Ray tracing can easily handle having many object instances at once. For instance, a top level acceleration structure can have many different instances of a bottom level acceleration structure. However, when we have many different objects, we can run into problems with memory allocation. Many Vulkan implementations support no more than 4096 allocations, while our current application creates 4 allocations per object (Vertex, Index, and Material), then one for the BLAS. That means we are hitting the limit with just above 1000 objects.
 
