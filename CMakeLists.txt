@@ -35,6 +35,5 @@ add_subdirectory(ray_tracing_anyhit)
 add_subdirectory(ray_tracing_jitter_cam)
 add_subdirectory(ray_tracing_manyhits)
 add_subdirectory(ray_tracing_reflections)
-# Need 'vk_mem_alloc.h' to be downloaded
-# add_subdirectory(ray_tracing_instances)
+add_subdirectory(ray_tracing_instances)
 

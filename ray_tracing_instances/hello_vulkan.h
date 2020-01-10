@@ -26,20 +26,27 @@
  */
 #pragma once
 
-#include "nvvkpp/allocator_dedicated_vkpp.hpp"
-#include "nvvkpp/allocator_vma_vkpp.hpp"
+// #VKRay
+//#define ALLOC_DEDICATED
+#define ALLOC_DMA
+//#define ALLOC_VMA
+
 #include "nvvkpp/appbase_vkpp.hpp"
 #include "nvvkpp/debug_util_vkpp.hpp"
 
 // #VKRay
-#define ALLOC_VMA
-//#define ALLOC_DEDICATED
 #include "nvvkpp/raytrace_vkpp.hpp"
 
 #if defined(ALLOC_DEDICATED)
+#include "nvvkpp/allocator_dedicated_vkpp.hpp"
 using nvvkBuffer  = nvvkpp::BufferDedicated;
 using nvvkTexture = nvvkpp::TextureDedicated;
+#elif defined(ALLOC_DMA)
+#include "nvvkpp/allocator_dma_vkpp.hpp"
+using nvvkBuffer  = nvvkpp::BufferDma;
+using nvvkTexture = nvvkpp::TextureDma;
 #elif defined(ALLOC_VMA)
+#include "nvvkpp/allocator_vma_vkpp.hpp"
 using nvvkBuffer  = nvvkpp::BufferVma;
 using nvvkTexture = nvvkpp::TextureVma;
 #endif
@@ -118,6 +125,9 @@ public:
 
 #if defined(ALLOC_DEDICATED)
   nvvkpp::AllocatorDedicated m_alloc;  // Allocator for buffer, images, acceleration structures
+#elif defined(ALLOC_DMA)
+  nvvkpp::AllocatorDma        m_alloc;  // Allocator for buffer, images, acceleration structures
+  nvvk::DeviceMemoryAllocator m_dmaAllocator;
 #elif defined(ALLOC_VMA)
   nvvkpp::AllocatorVma m_alloc;  // Allocator for buffer, images, acceleration structures
   VmaAllocator         m_vmaAllocator;

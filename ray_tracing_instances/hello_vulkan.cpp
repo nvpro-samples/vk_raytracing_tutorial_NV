@@ -67,6 +67,9 @@ void HelloVulkan::setup(const vk::Device&         device,
   AppBase::setup(device, physicalDevice, queueFamily);
 #if defined(ALLOC_DEDICATED)
   m_alloc.init(device, physicalDevice);
+#elif defined(ALLOC_DMA)
+  m_dmaAllocator.init(device, physicalDevice);
+  m_alloc.init(device, &m_dmaAllocator);
 #elif defined(ALLOC_VMA)
   VmaAllocatorCreateInfo allocatorInfo = {};
   allocatorInfo.physicalDevice         = physicalDevice;
@@ -98,6 +101,10 @@ void HelloVulkan::updateUniformBuffer()
   void* data = m_device.mapMemory(m_cameraMat.allocation, 0, sizeof(CameraMatrices));
   memcpy(data, &ubo, sizeof(ubo));
   m_device.unmapMemory(m_cameraMat.allocation);
+#elif defined(ALLOC_DMA)
+  void* data = m_dmaAllocator.map(m_cameraMat.allocation);
+  memcpy(data, &ubo, sizeof(ubo));
+  m_dmaAllocator.unmap(m_cameraMat.allocation);
 #elif defined(ALLOC_VMA)
   void* data;
   vmaMapMemory(m_vmaAllocator, m_cameraMat.allocation, &data);
@@ -286,7 +293,7 @@ void HelloVulkan::createUniformBuffer()
   using vkMP = vk::MemoryPropertyFlagBits;
 
   m_cameraMat = m_alloc.createBuffer(sizeof(CameraMatrices), vkBU::eUniformBuffer,
-#if defined(ALLOC_DEDICATED)
+#if defined(ALLOC_DEDICATED) || defined(ALLOC_DMA)
                                      vkMP::eHostVisible | vkMP::eHostCoherent
 #elif defined(ALLOC_VMA)
                                      VMA_MEMORY_USAGE_CPU_TO_GPU
@@ -427,7 +434,9 @@ void HelloVulkan::destroyResources()
   m_device.destroy(m_rtPipelineLayout);
   m_alloc.destroy(m_rtSBTBuffer);
 
-#if defined(ALLOC_VMA)
+#if defined(ALLOC_DMA)
+  m_dmaAllocator.deinit();
+#elif defined(ALLOC_VMA)
   vmaDestroyAllocator(m_vmaAllocator);
 #endif
 }
@@ -640,6 +649,8 @@ void HelloVulkan::initRayTracing()
   m_rtProperties  = properties.get<vk::PhysicalDeviceRayTracingPropertiesNV>();
 #if defined(ALLOC_DEDICATED)
   m_rtBuilder.setup(m_device, m_physicalDevice, m_graphicsQueueIndex);
+#elif defined(ALLOC_DMA)
+  m_rtBuilder.setup(m_device, m_dmaAllocator, m_graphicsQueueIndex);
 #elif defined(ALLOC_VMA)
   m_rtBuilder.setup(m_device, m_vmaAllocator, m_graphicsQueueIndex);
 #endif
