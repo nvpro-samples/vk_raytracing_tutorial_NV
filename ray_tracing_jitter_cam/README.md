@@ -6,7 +6,7 @@ Updated **December 2019**
 
 # NVIDIA Vulkan Ray Tracing Tutorial - Jitter Camera
 
-![antialiasing](Images/antialiasing.png)
+![antialiasing](images/antialiasing.png)
 
 This is an extension of the Vulkan ray tracing [tutorial](../ray_tracing__simple/README.md).
 
