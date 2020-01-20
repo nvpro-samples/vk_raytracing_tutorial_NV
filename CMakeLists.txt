@@ -9,7 +9,6 @@ if(NOT BASE_DIRECTORY) # if not defined, it means this cmake file was called as 
   # check if the external repository is outside or inside the project (as a sub-module)
   # testing the file CMakeLists_include.txt because when sub-modules are not cloned, the folders are still there...
   # we also assume here that if shared_sources is there, shared_external is, too...
-  SET(ADD_SUBDIR_BELOW 1)
   if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/shared_sources/CMakeLists_include.txt)
     Message(STATUS "found sub-folder shared_sources")
     SET(BASE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
@@ -21,6 +20,7 @@ if(NOT BASE_DIRECTORY) # if not defined, it means this cmake file was called as 
     SET(BASE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..)
     INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/../shared_sources/CMakeLists_include.txt)
   endif()
+  SET(ADD_SHARED_SOURCES 1)
 endif(NOT BASE_DIRECTORY)
 
 _add_package_OpenGL()
@@ -36,4 +36,8 @@ add_subdirectory(ray_tracing_jitter_cam)
 add_subdirectory(ray_tracing_manyhits)
 add_subdirectory(ray_tracing_reflections)
 add_subdirectory(ray_tracing_instances)
+
+if(ADD_SHARED_SOURCES)
+add_subdirectory(${BASE_DIRECTORY}/shared_sources ${CMAKE_BINARY_DIR}/shared_sources)
+endif(ADD_SHARED_SOURCES)
 
