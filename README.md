@@ -1,4 +1,6 @@
-﻿![logo](http://nvidianews.nvidia.com/_ir/219/20157/NV_Designworks_logo_horizontal_greenblack.png)
+﻿[Click here for the blog](https://nvpro-samples.github.io/)
+
+![logo](http://nvidianews.nvidia.com/_ir/219/20157/NV_Designworks_logo_horizontal_greenblack.png)
 
 # NVIDIA Vulkan Ray Tracing Tutorials
 
