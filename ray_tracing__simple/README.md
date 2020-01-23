@@ -780,14 +780,14 @@ void HelloVulkan::createRtPipeline()
   vk::RayTracingShaderGroupCreateInfoNV rg{vk::RayTracingShaderGroupTypeNV::eGeneral,
                                            VK_SHADER_UNUSED_NV, VK_SHADER_UNUSED_NV,
                                            VK_SHADER_UNUSED_NV, VK_SHADER_UNUSED_NV};
-  stages.push_back({{}, vk::ShaderStageFlagBits::eRaygenNV, raygenSM, "main"});
+  stages.push_back({ { }, vk::ShaderStageFlagBits::eRaygenNV, raygenSM, "main"});
   rg.setGeneralShader(static_cast<uint32_t>(stages.size() - 1));
   m_rtShaderGroups.push_back(rg);
   // Miss
   vk::RayTracingShaderGroupCreateInfoNV mg{vk::RayTracingShaderGroupTypeNV::eGeneral,
                                            VK_SHADER_UNUSED_NV, VK_SHADER_UNUSED_NV,
                                            VK_SHADER_UNUSED_NV, VK_SHADER_UNUSED_NV};
-  stages.push_back({{}, vk::ShaderStageFlagBits::eMissNV, missSM, "main"});
+  stages.push_back({ { }, vk::ShaderStageFlagBits::eMissNV, missSM, "main"});
   mg.setGeneralShader(static_cast<uint32_t>(stages.size() - 1));
   m_rtShaderGroups.push_back(mg);
 
@@ -811,7 +811,7 @@ since the `stages` vector already contains the ray generation and miss shaders.
   vk::RayTracingShaderGroupCreateInfoNV hg{vk::RayTracingShaderGroupTypeNV::eTrianglesHitGroup,
                                            VK_SHADER_UNUSED_NV, VK_SHADER_UNUSED_NV,
                                            VK_SHADER_UNUSED_NV, VK_SHADER_UNUSED_NV};
-  stages.push_back({{}, vk::ShaderStageFlagBits::eClosestHitNV, chitSM, "main"});
+  stages.push_back({ { }, vk::ShaderStageFlagBits::eClosestHitNV, chitSM, "main"});
   hg.setClosestHitShader(static_cast<uint32_t>(stages.size() - 1));
   m_rtShaderGroups.push_back(hg);
 ````
