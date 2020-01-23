@@ -62,9 +62,15 @@ This tutorial shows how animating the transformation matrices of the instances (
 
 ![animation2](ray_tracing_animation/images/animation2.gif)
 
+## [Intersection Shader](ray_tracing_intersection)
+
+Adding thousands of implicit primitives and using an intersection shader to render spheres and cubes. The tutorial explains what is needed to get procedural hit group working.
+
+![intersection](ray_tracing_intersection/images/ray_tracing_intersection.png)
+
+
 ----
 
 Other tutorials are in progress and links will be available in the future.
 
-* Intersection shader: spheres and/or volumetric shading
 * Callable shaders

@@ -37,6 +37,8 @@ add_subdirectory(ray_tracing_manyhits)
 add_subdirectory(ray_tracing_reflections)
 add_subdirectory(ray_tracing_instances)
 
+add_subdirectory(ray_tracing_intersection)
+
 if(ADD_SHARED_SOURCES)
 add_subdirectory(${BASE_DIRECTORY}/shared_sources ${CMAKE_BINARY_DIR}/shared_sources)
 endif(ADD_SHARED_SOURCES)
