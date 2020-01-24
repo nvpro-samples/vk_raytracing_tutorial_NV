@@ -1,5 +1,4 @@
-﻿[Click here for the blog](https://nvpro-samples.github.io/)
-
+﻿
 ![logo](http://nvidianews.nvidia.com/_ir/219/20157/NV_Designworks_logo_horizontal_greenblack.png)
 
 # NVIDIA Vulkan Ray Tracing Tutorials
@@ -18,7 +17,9 @@ Instead of having examples fully functional, those tutorial starts from a progra
 
 The first tutorial is starting from a Vulkan code example, which can load multiple OBJ and render them using the rasterizer, and adds step-by-step what is require to do ray tracing.
 
-Jump to the [tutorial](ray_tracing__simple)
+[tutorial](https://nvpro-samples.github.io/vk_raytracing_tutorial/)
+
+Which will start with the simplest steps to turn a sample ready for ray tracing ([section ray_tracing__simple](ray_tracing__simple) )
 
 ![resultRaytraceShadowMedieval](ray_tracing__simple/images/resultRaytraceShadowMedieval.png)
 
