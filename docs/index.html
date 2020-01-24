@@ -122,7 +122,7 @@ We will start with a single bottom-level AS and a top-level AS instancing it onc
 
 ![Figure [step]: Acceleration Structure](/sites/default/files/pictures/2019/vulkan_raytracing/AccelerationStructure.svg) 
 
-![Figure [step]: Acceleration Structure - LOCAL](images/AccelerationStructure.svg)
+![Figure [step]: Acceleration Structure - LOCAL](Images/AccelerationStructure.svg)
 
 
 This sample loads an OBJ file and stores its indices, vertices and material data into an `ObjModel` structure. This 
@@ -661,7 +661,7 @@ geometry placeholders for on-demand geometry loading, or intersecting
 
 ![Figure [step]: The Ray Tracing Pipeline](/sites/default/files/pictures/2019/vulkan_raytracing/ShaderPipeline.svg)
 
-![Figure [step]: The Ray Tracing Pipeline - LOCAL](images/ShaderPipeline.svg)
+![Figure [step]: The Ray Tracing Pipeline - LOCAL](Images/ShaderPipeline.svg)
 
 
 We will start with a pipeline containing only the 3 main shader programs: a single ray generation shader, a single miss shader, and a single hit group made only of a closest
@@ -1052,7 +1052,7 @@ does not trace any ray yet, and simply returns a fixed color.
 Raster                         |     | Ray Trace 
 :-----------------------------:|:---:|:--------------------------------:
 ![](/sites/default/files/pictures/2019/vulkan_raytracing/resultRasterCube.png width="350px")   | <-> |   ![](/sites/default/files/pictures/2019/vulkan_raytracing/resultRaytraceEmptyCube.png width="350px")
-![LOCAL](images/resultRasterCube.png width="350px")   | <-> |   ![LOCAL](images/resultRaytraceEmptyCube.png width="350px")
+![LOCAL](Images/resultRasterCube.png width="350px")   | <-> |   ![LOCAL](Images/resultRaytraceEmptyCube.png width="350px")
 
 
 # Camera Setup
@@ -1189,7 +1189,7 @@ Raster                         |     | Ray Trace
 :-----------------------------:|:---:|:--------------------------------:
 ![](/sites/default/files/pictures/2019/vulkan_raytracing/resultRasterCube.png width="350px")   | <-> |   ![](/sites/default/files/pictures/2019/vulkan_raytracing/resultRaytraceFlatCube.png width="350px")
 
-![LOCAL](images/resultRasterCube.png width="350px")   | <-> |   ![LOCAL](images/resultRaytraceFlatCube.png width="350px")
+![LOCAL](Images/resultRasterCube.png width="350px")   | <-> |   ![LOCAL](Images/resultRaytraceFlatCube.png width="350px")
 
 ## Miss shader (`raytrace.miss`)
 To share the clear color of the rasterization with the ray tracer, we will change the return value of the miss shader to return the clear value passed as a push constant.
@@ -1328,7 +1328,7 @@ giving a simple diffuse lighting effect:
 
 ![](/sites/default/files/pictures/2019/vulkan_raytracing/resultRaytraceLightGreyCube.png) 
 
-![LOCAL](images/resultRaytraceLightGreyCube.png) 
+![LOCAL](Images/resultRaytraceLightGreyCube.png) 
 
 
 # Simple Materials
@@ -1390,7 +1390,7 @@ The final lighting is then computed as
 
 ![](/sites/default/files/pictures/2019/vulkan_raytracing/resultRaytraceLightMatCube.png) 
 
-![LOCAL](images/resultRaytraceLightMatCube.png) 
+![LOCAL](Images/resultRaytraceLightMatCube.png) 
 
 
 ## main
@@ -1407,7 +1407,7 @@ CameraManip.setLookat(glm::vec3(4.0f, 4.0f, 4.0f), glm::vec3(0, 1, 0), glm::vec3
 
 ![](/sites/default/files/pictures/2019/vulkan_raytracing/resultRaytraceLightMatMedieval.png) 
 
-![LOCAL](images/resultRaytraceLightMatMedieval.png) 
+![LOCAL](Images/resultRaytraceLightMatMedieval.png) 
 
 # Shadows
 
@@ -1575,7 +1575,7 @@ prd.hitValue = vec3(lightIntensity * attenuation * (diffuse + specular));
 
 ![](/sites/default/files/pictures/2019/vulkan_raytracing/resultRaytraceShadowMedieval.png) 
 
-![LOCAL](images/resultRaytraceShadowMedieval.png) 
+![LOCAL](Images/resultRaytraceShadowMedieval.png) 
 
 The final project can be downloaded [here](/rtx/raytracing/vkrt_helpers/files/vkexamples_final.zip).
 
