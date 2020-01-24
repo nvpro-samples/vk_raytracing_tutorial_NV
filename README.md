@@ -17,7 +17,7 @@ Instead of having examples fully functional, those tutorial starts from a progra
 
 The first tutorial is starting from a Vulkan code example, which can load multiple OBJ and render them using the rasterizer, and adds step-by-step what is require to do ray tracing.
 
-[tutorial](https://nvpro-samples.github.io/vk_raytracing_tutorial/)
+[full tutorial here](https://nvpro-samples.github.io/vk_raytracing_tutorial/)
 
 Which will start with the simplest steps to turn a sample ready for ray tracing ([section ray_tracing__simple](ray_tracing__simple) )
 
