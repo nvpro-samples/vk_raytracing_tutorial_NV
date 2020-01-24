@@ -1,4 +1,7 @@
-﻿<markdeep>
+﻿<meta charset="utf-8" emacsmode="-*- markdown -*-">
+<link rel="stylesheet" href="vkrt_tutorial.css?">
+<script> window.markdeepOptions = { tocStyle: "medium" };</script>
+<markdeep>
 By [Martin-Karl Lefrançois](https://devblogs.nvidia.com/author/mlefrancois/),
    [Pascal Gautron](https://devblogs.nvidia.com/author/pgautron/), Neil Bickford
 
@@ -24,21 +27,7 @@ integration would require additional levels of abstraction.
 To get support for `VK_NV_ray_tracing`, please install an [NVIDIA driver](http://www.nvidia.com/Download/index.aspx?lang=en-us) 
 with version 440.97 or later, and the [Vulkan SDK](http://vulkan.lunarg.com/sdk/home) version 1.1.126.0 or later. 
 
-The base code for the tutorial is located here: 
-
-!!! Note: Base Source Code ([Download](/rtx/raytracing/vkrt_helpers/files/vkexamples.zip))
-    Download the file and extract it.
-
-!!! Note: Base Source Code ([Download-Local](files/vkexamples.zip))
-    Download the file and extract it.
-
-
-The Visual Studio 2019 solution contains the `VkExample1` project that provides a simple framework allowing us to load OBJ files and rasterize them 
-using Vulkan. 
-
-![](/sites/default/files/pictures/2019/vulkan_raytracing/resultRasterCube.png)
-
-![LOCAL](Images/resultRasterCube.png)
+![](Images/resultRasterCube.png)
 
 This tutorial highlights the steps to add ray tracing to an existing Vulkan application, and assumes a working knowledge of Vulkan in general. The code verbosity of classical 
 components such as swapchain management, render passes etc. is 
@@ -120,9 +109,7 @@ with its own transformation matrix and reference to a corresponding BLAS.
 We will start with a single bottom-level AS and a top-level AS instancing it once with an identity transform. 
 
 
-![Figure [step]: Acceleration Structure](/sites/default/files/pictures/2019/vulkan_raytracing/AccelerationStructure.svg) 
-
-![Figure [step]: Acceleration Structure - LOCAL](Images/AccelerationStructure.svg)
+![Figure [step]: Acceleration Structure](Images/AccelerationStructure.svg)
 
 
 This sample loads an OBJ file and stores its indices, vertices and material data into an `ObjModel` structure. This 
@@ -659,24 +646,12 @@ geometry placeholders for on-demand geometry loading, or intersecting
   traversal can continue without having to call `traceNV()` again. The built-in any hit shader is simply a pass-through returning the intersection
   to the traversal engine, which will determine which ray intersection is the closest. 
 
-![Figure [step]: The Ray Tracing Pipeline](/sites/default/files/pictures/2019/vulkan_raytracing/ShaderPipeline.svg)
-
-![Figure [step]: The Ray Tracing Pipeline - LOCAL](Images/ShaderPipeline.svg)
+![Figure [step]: The Ray Tracing Pipeline](Images/ShaderPipeline.svg)
 
 
 We will start with a pipeline containing only the 3 main shader programs: a single ray generation shader, a single miss shader, and a single hit group made only of a closest
 hit shader. This is done by first compiling each GLSL shader program into SPIR-V. These SPIR-V shaders will be linked 
 together into a ray tracing pipeline, which will be able to route the intersection calculations to the right hit shaders. 
-
-To be able to focus on the pipeline generation, we provide simple shaders:
-
-!!! Note: Shaders ([Download](/rtx/raytracing/vkrt_helpers/files/shaders.zip))
-    Download the shaders and extract the content into `src/shaders`. Then add them to the `shaders` filter inside Visual Studio. If you right-click on a shader file and view its properties, you should see that its Item Type is set to "GLSL Validator".
-
-!!! Note: Shaders ([Download-Local](files/shaders.zip))
-    Download the shaders and extract the content into `src/shaders`. Then add them to the `shaders` filter inside Visual Studio. If you right-click on a shader file and view its properties, you should see that its Item Type is set to "GLSL Validator".
-
-
 
 The `shaders` folder now contains 3 more files:
 * `raytrace.rgen` contains the ray generation program. It also declares its 
@@ -1051,8 +1026,7 @@ does not trace any ray yet, and simply returns a fixed color.
 
 Raster                         |     | Ray Trace 
 :-----------------------------:|:---:|:--------------------------------:
-![](/sites/default/files/pictures/2019/vulkan_raytracing/resultRasterCube.png width="350px")   | <-> |   ![](/sites/default/files/pictures/2019/vulkan_raytracing/resultRaytraceEmptyCube.png width="350px")
-![LOCAL](Images/resultRasterCube.png width="350px")   | <-> |   ![LOCAL](Images/resultRaytraceEmptyCube.png width="350px")
+![](Images/resultRasterCube.png width="350px")   | <-> |   ![](Images/resultRaytraceEmptyCube.png width="350px")
 
 
 # Camera Setup
@@ -1187,9 +1161,7 @@ Finally, we write the resulting payload into the output buffer.
 
 Raster                         |     | Ray Trace 
 :-----------------------------:|:---:|:--------------------------------:
-![](/sites/default/files/pictures/2019/vulkan_raytracing/resultRasterCube.png width="350px")   | <-> |   ![](/sites/default/files/pictures/2019/vulkan_raytracing/resultRaytraceFlatCube.png width="350px")
-
-![LOCAL](Images/resultRasterCube.png width="350px")   | <-> |   ![LOCAL](Images/resultRaytraceFlatCube.png width="350px")
+![](Images/resultRasterCube.png width="350px")   | <-> |   ![](Images/resultRaytraceFlatCube.png width="350px")
 
 ## Miss shader (`raytrace.miss`)
 To share the clear color of the rasterization with the ray tracer, we will change the return value of the miss shader to return the clear value passed as a push constant.
@@ -1326,9 +1298,7 @@ giving a simple diffuse lighting effect:
 }
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-![](/sites/default/files/pictures/2019/vulkan_raytracing/resultRaytraceLightGreyCube.png) 
-
-![LOCAL](Images/resultRaytraceLightGreyCube.png) 
+![](Images/resultRaytraceLightGreyCube.png) 
 
 
 # Simple Materials
@@ -1388,9 +1358,7 @@ The final lighting is then computed as
   prd.hitValue = vec3(lightIntensity * (diffuse + specular));
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-![](/sites/default/files/pictures/2019/vulkan_raytracing/resultRaytraceLightMatCube.png) 
-
-![LOCAL](Images/resultRaytraceLightMatCube.png) 
+![](Images/resultRaytraceLightMatCube.png) 
 
 
 ## main
@@ -1405,9 +1373,7 @@ Since that model is larger, we can change the `CameraManip.setLookat` call to
 CameraManip.setLookat(glm::vec3(4.0f, 4.0f, 4.0f), glm::vec3(0, 1, 0), glm::vec3(0, 1, 0));
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-![](/sites/default/files/pictures/2019/vulkan_raytracing/resultRaytraceLightMatMedieval.png) 
-
-![LOCAL](Images/resultRaytraceLightMatMedieval.png) 
+![](Images/resultRaytraceLightMatMedieval.png) 
 
 # Shadows
 
@@ -1420,13 +1386,7 @@ a new miss shader.
 For simple shadow rays we only need to compute whether some geometry was hit along the ray or not. This can be achieved 
 using a Boolean payload initialized as if a hit were found, and ray trace using only an additional miss shader that will set the payload to no hit. 
 
-!!! Note: Shader ([Download](/rtx/raytracing/vkrt_helpers/files/shadowShaders.zip))
-    Download the shader and extract it into `src/shaders`.
-
-!!! Note: Shader ([Download-local](files/shadowShaders.zip))
-    Download the shader and extract it into `src/shaders`.
-
-This archive contains only one file, `raytraceShadow.rmiss`. Add this file to the `shaders` filter in the Visual Studio project. 
+Use `raytraceShadow.rmiss` from `shaders` filter in the Visual Studio project. 
 Make sure that its properties page says the `Item Type` is `GLSL Validator`. The shader file should compile,
 and the resulting SPIR-V file should be stored in the `shaders` folder alongside the GLSL file. 
 
@@ -1573,9 +1533,7 @@ The final payload value can then be adjusted depending on the result of the shad
 prd.hitValue = vec3(lightIntensity * attenuation * (diffuse + specular));
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-![](/sites/default/files/pictures/2019/vulkan_raytracing/resultRaytraceShadowMedieval.png) 
-
-![LOCAL](Images/resultRaytraceShadowMedieval.png) 
+![](Images/resultRaytraceShadowMedieval.png) 
 
 The final project can be downloaded [here](/rtx/raytracing/vkrt_helpers/files/vkexamples_final.zip).
 
@@ -1638,5 +1596,6 @@ the future.
 * Intersection shader: spheres and/or volumetric shading
 * Callable shaders 
 </markdeep>
-<script> window.markdeepOptions={mode:"html"};</script>
+<!-- Markdeep: -->
 <script src="https://developer.nvidia.com/sites/default/files/akamai/gameworks/whitepapers/markdeep.min.js"></script>
+<script>window.alreadyProcessedMarkdeep || (document.body.style.visibility = "visible")</script>
