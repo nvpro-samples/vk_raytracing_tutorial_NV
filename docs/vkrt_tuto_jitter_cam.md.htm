@@ -1,7 +1,6 @@
-﻿<meta charset="utf-8" emacsmode="-*- markdown -*-">
+﻿<meta charset="utf-8" lang="en"><style class="fallback">body{visibility:hidden;}</style>
 <link rel="stylesheet" href="vkrt_tutorial.css?">
 <script> window.markdeepOptions = { tocStyle: "medium" };</script>
-<markdeep>
 By [Martin-Karl Lefrançois](https://devblogs.nvidia.com/author/mlefrancois/), Neil Bickford
 
 !!! Tip
@@ -269,17 +268,6 @@ In `main()`, after initializing the random number seed, create a loop that enclo
 
 For a given value of `m_maxFrames` and `NBSAMPLE`, the image this converges to will have `m_maxFrames * NBSAMPLE` antialiasing samples. For instance, if `m_maxFrames = 10` and `NBSAMPLE = 10`, this will be equivalent in quality to an image using `m_maxFrames = 100` and `NBSAMPLE = 1`. However, using `NBSAMPLE=10` in the ray generation shader will be faster than calling `raytrace()` with `NBSAMPLE=1` 10 times in a row.
 
-
-
-
-
-
-
-
-
-
-
-</markdeep>
 <!-- Markdeep: -->
 <script src="https://developer.nvidia.com/sites/default/files/akamai/gameworks/whitepapers/markdeep.min.js"></script>
 <script>window.alreadyProcessedMarkdeep || (document.body.style.visibility = "visible")</script>
