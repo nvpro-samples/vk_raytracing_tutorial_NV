@@ -1,27 +1,24 @@
-﻿<meta charset="utf-8" lang="en"><style class="fallback">body{visibility:hidden;}</style>
-<link rel="stylesheet" href="vkrt_tutorial.css?">
-<script> window.markdeepOptions = { tocStyle: "medium" };</script>
-By [Martin-Karl Lefrançois](https://devblogs.nvidia.com/author/mlefrancois/), Neil Bickford
+﻿<meta charset="utf-8" lang="en">
+**NVIDIA Vulkan Ray Tracing Tutorial**
+**Antialiasing**
 
-!!! Tip
-    Updated **December 2019**
-
-# NVIDIA Vulkan Ray Tracing Tutorial - Jitter Camera
 
 ![](Images/antialiasing.png)
 
+# Introduction
+
 This is an extension of the Vulkan ray tracing [tutorial](vkrt_tutorial.md.htm).
 
-You can find the related code in the folder "ray_tracing_jitter_cam"
-
 In this extension, we will implement antialiasing by jittering the offset of each ray for each pixel over time, instead of always shooting each ray from the middle of its pixel.
+
+(insert setup.md.html here)
+
 
 ## Random Functions
 
 We will use some simple functions for random number generation, which suffice for this example.
 
-Create a new shader file `random.glsl` with the following code. Add it to the `shaders` filter in Visual Studio, and include it in 
-`raytrace.rgen`:
+Create a new shader file `random.glsl` with the following code. Add it to the `shaders` directory and rerun CMake, and include this new file in `raytrace.rgen`:
 
 ~~~~ C++
 // Generate a random unsigned int from two unsigned int values, using 16 pairs
@@ -58,14 +55,16 @@ float rnd(inout uint prev)
 {
   return (float(lcg(prev)) / float(0x01000000));
 }
-~~~~ 
+~~~~
 
 ## Frame Number
+
 Since our jittered samples will be accumulated across frames, we need to know which frame we are currently rendering. A frame number of 0 will indicate a new frame, and we will accumulate the data for larger frame numbers.
 
 Note that the uniform image is read/write, which makes it possible to accumulate previous frames.
 
 In `raytrace.rgen`, add the push constant block from `raytrace.rchit`, adding a new `frame` member:
+
 ~~~~ C++
 layout(push_constant) uniform Constants
 {
@@ -76,44 +75,49 @@ layout(push_constant) uniform Constants
   int   frame;
 }
 pushC;
-~~~~ 
+~~~~
 
 Also add this frame member to the `RtPushConstant` struct in `hello_vulkan.h`:
 
 ~~~~ C++
   struct RtPushConstant
   {
-    glm::vec4 clearColor;
-    glm::vec3 lightPosition;
-    float     lightIntensity;
-    int       lightType;
-    int       frame{0};
+    nvmath::vec4f clearColor;
+    nvmath::vec3f lightPosition;
+    float         lightIntensity;
+    int           lightType;
+    int           frame{0};
   } m_rtPushConstants;
 ~~~~
 
 ## Random and Jitter
+
 In `raytrace.rgen`, at the beginning of `main()`, initialize the random seed:
+
 ~~~~ C++
   // Initialize the random number
   uint seed = tea(gl_LaunchIDNV.y * gl_LaunchSizeNV.x + gl_LaunchIDNV.x, pushC.frame);
-~~~~ 
+~~~~
 
 Then we need two random numbers to vary the X and Y inside the pixel, except for frame 0, where we always shoot
 in the center.
+
 ~~~~ C++
 float r1 = rnd(seed);
 float r2 = rnd(seed);
 // Subpixel jitter: send the ray through a different position inside the pixel
 // each time, to provide antialiasing.
 vec2 subpixel_jitter = pushC.frame == 0 ? vec2(0.5f, 0.5f) : vec2(r1, r2);
-~~~~ 
+~~~~
 
 Now we only need to change how we compute the pixel center:
+
 ~~~~ C++
 const vec2 pixelCenter = vec2(gl_LaunchIDNV.xy) + subpixel_jitter;
-~~~~ 
+~~~~
 
 ## Storing or Updating
+
 At the end of `main()`, if the frame number is equal to 0, we write directly to the image.
 Otherwise, we combine the new image with the previous `frame` frames.
 
@@ -132,11 +136,13 @@ Otherwise, we combine the new image with the previous `frame` frames.
   }
 ~~~~
 
-# Application Frame Update 
+# Application Frame Update
+
 We need to increment the current rendering frame, but we also need to reset it when something in the
-scene is changing. 
+scene is changing.
 
 Add two new functions to the `HelloVulkan` class:
+
 ~~~~ C++
   void resetFrame();
   void updateFrame();
@@ -151,10 +157,10 @@ The implementation of `updateFrame` resets the frame counter if the camera has c
 //
 void HelloVulkan::updateFrame()
 {
-  static glm::mat4 refCamMatrix;
+  static nvmath::mat4f refCamMatrix;
 
-  glm::mat4 m = CameraManip.getMatrix();
-  if(m != refCamMatrix)
+  auto& m = CameraManip.getMatrix();
+  if(memcmp(&refCamMatrix.a00, &m.a00, sizeof(nvmath::mat4f)) != 0)
   {
     resetFrame();
     refCamMatrix = m;
@@ -164,7 +170,8 @@ void HelloVulkan::updateFrame()
 ~~~~
 
 Since `resetFrame` will be called before `updateFrame` increments the frame counter, `resetFrame` will set the frame counter to -1:
-~~~~ C++ 
+
+~~~~ C++
 void HelloVulkan::resetFrame()
 {
   m_rtPushConstants.frame = -1;
@@ -172,7 +179,8 @@ void HelloVulkan::resetFrame()
 ~~~~
 
 At the begining of `HelloVulkan::raytrace`, call
-~~~~ C++ 
+
+~~~~ C++
   updateFrame();
 ~~~~
 
@@ -181,6 +189,7 @@ The application will now antialias the image when ray tracing is enabled.
 ## Resetting Frame on UI Change
 
 The frame number should also be reset when any parts of the scene change, such as the light direction or the background color. In `renderUI()` in `main.cpp`, check for UI changes and reset the frame number when they happen:
+
 ~~~~ C++
 void renderUI(HelloVulkan& helloVk)
 {
@@ -188,9 +197,9 @@ void renderUI(HelloVulkan& helloVk)
   bool       changed = false;
   if(ImGui::Combo("Up Vector", &item, "X\0Y\0Z\0\0"))
   {
-    glm::vec3 pos, eye, up;
+    nvmath::vec3f pos, eye, up;
     CameraManip.getLookat(pos, eye, up);
-    up = glm::vec3(item == 0, item == 1, item == 2);
+    up = nvmath::vec3f(item == 0, item == 1, item == 2);
     CameraManip.setLookat(pos, eye, up);
     changed = true;
   }
@@ -207,6 +216,7 @@ void renderUI(HelloVulkan& helloVk)
 ~~~~
 
 We also need to check for UI changes inside the main loop inside `main()`:
+
 ~~~~ C++
   bool changed = false;
   // Edit 3 floats representing a color
@@ -217,38 +227,41 @@ We also need to check for UI changes inside the main loop inside `main()`:
     helloVk.resetFrame();
 ~~~~
 
-
 # Quality
+
 After enough samples, the quality of the rendering will be sufficiently high that it might make sense to avoid accumulating further images.
 
 Add a member variable to `HelloVulkan`
-~~~~ C++ 
+
+~~~~ C++
 int m_maxFrames{100};
 ~~~~
 
 and also add a way to control it in `renderUI()`, making sure that `m_maxFrames` cannot be set below 1:
+
 ~~~~ C++
 changed |= ImGui::InputInt("Max Frames", &helloVk.m_maxFrames);
 helloVk.m_maxFrames = std::max(helloVk.m_maxFrames, 1);
-~~~~ 
+~~~~
 
-Then in  `raytrace()`, immediately after the call to `updateFrame()`, return if the current frame has 
-exceeded the max frame. 
-~~~~ C++ 
+Then in  `raytrace()`, immediately after the call to `updateFrame()`, return if the current frame has exceeded the max frame.
+
+~~~~ C++
   if(m_rtPushConstants.frame >= m_maxFrames)
     return;
-~~~~ 
+~~~~
 
 Since the output image won't be modified by the ray tracer, we will simply display the last good image, reducing GPU usage when the target quality has been reached.
 
-
 # More Samples in RayGen
+
 To improve efficiency, we can perform multiple samples directly in the ray generation shader. This will be faster than calling `raytrace()` the equivalent number of times.
 
 To do this, add a constant to `raytrace.rgen` (this could alternatively be added to the push constant block and controlled by the application):
+
 ~~~~ C++
 const int NBSAMPLES = 10;
-~~~~ 
+~~~~
 
 In `main()`, after initializing the random number seed, create a loop that encloses the lines from the generation of `r1` and `r2` to the `traceNV` call, and accumulates the colors returned by `traceNV`. At the end of the loop, divide by the number of samples that were taken.
 
@@ -260,14 +273,23 @@ In `main()`, after initializing the random number seed, create a loop that enclo
     float r1 = rnd(seed);
     float r2 = rnd(seed);
     // ...
-	// TraceNV( ... );
-	hitValues += prd.hitValue;
+    // TraceNV( ... );
+    hitValues += prd.hitValue;
   }
   prd.hitValue = hitValues / NBSAMPLES;
 ~~~~
 
 For a given value of `m_maxFrames` and `NBSAMPLE`, the image this converges to will have `m_maxFrames * NBSAMPLE` antialiasing samples. For instance, if `m_maxFrames = 10` and `NBSAMPLE = 10`, this will be equivalent in quality to an image using `m_maxFrames = 100` and `NBSAMPLE = 1`. However, using `NBSAMPLE=10` in the ray generation shader will be faster than calling `raytrace()` with `NBSAMPLE=1` 10 times in a row.
 
+# Final Code 
+
+You can find the final code in the folder [ray_tracing_jitter_cam](https://github.com/nvpro-samples/vk_raytracing_tutorial/tree/master/ray_tracing_jitter_cam)
+
 <!-- Markdeep: -->
-<script src="https://developer.nvidia.com/sites/default/files/akamai/gameworks/whitepapers/markdeep.min.js"></script>
-<script>window.alreadyProcessedMarkdeep || (document.body.style.visibility = "visible")</script>
+<link rel="stylesheet" href="vkrt_tutorial.css?">
+<script> window.markdeepOptions = { tocStyle: "medium" };</script>
+<script src="markdeep.min.js" charset="utf-8"></script>
+<script src="https://developer.nvidia.com/sites/default/files/akamai/gameworks/whitepapers/markdeep.min.js" charset="utf-8"></script>
+<script>
+    window.alreadyProcessedMarkdeep || (document.body.style.visibility = "visible")
+</script>
