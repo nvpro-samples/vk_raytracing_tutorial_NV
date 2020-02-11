@@ -358,14 +358,16 @@ void HelloVulkan::createTextureImages(const vk::CommandBuffer&        cmdBuf,
       auto           imgSize    = vk::Extent2D(texWidth, texHeight);
       auto imageCreateInfo = nvvkpp::image::create2DInfo(imgSize, format, vkIU::eSampled, true);
 
-      nvvkTexture texture;
-      texture = m_alloc.createImage(cmdBuf, bufferSize, pixels, imageCreateInfo);
+      {
+        nvvkTexture texture;
+        texture = m_alloc.createImage(cmdBuf, bufferSize, pixels, imageCreateInfo);
 
-      nvvkpp::image::generateMipmaps(cmdBuf, texture.image, format, imgSize,
-                                     imageCreateInfo.mipLevels);
-      texture.descriptor =
-          nvvkpp::image::create2DDescriptor(m_device, texture.image, samplerCreateInfo, format);
-      m_textures.push_back(texture);
+        nvvkpp::image::generateMipmaps(cmdBuf, texture.image, format, imgSize,
+                                       imageCreateInfo.mipLevels);
+        texture.descriptor =
+            nvvkpp::image::create2DDescriptor(m_device, texture.image, samplerCreateInfo, format);
+        m_textures.push_back(texture);
+      }
     }
   }
 }
@@ -703,10 +705,10 @@ void HelloVulkan::createSpheres()
   }
 
   // Creating two materials
-  MatrialObj mat;
+  MaterialObj mat;
   mat.diffuse = vec3f(0, 1, 1);
-  std::vector<MatrialObj> materials;
-  std::vector<int>        matIdx;
+  std::vector<MaterialObj> materials;
+  std::vector<int>         matIdx;
   materials.emplace_back(mat);
   mat.diffuse = vec3f(1, 1, 0);
   materials.emplace_back(mat);

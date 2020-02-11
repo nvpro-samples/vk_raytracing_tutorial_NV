@@ -348,14 +348,16 @@ void HelloVulkan::createTextureImages(const vk::CommandBuffer&        cmdBuf,
       auto           imgSize    = vk::Extent2D(texWidth, texHeight);
       auto imageCreateInfo = nvvkpp::image::create2DInfo(imgSize, format, vkIU::eSampled, true);
 
-      nvvkTexture texture;
-      texture = m_alloc.createImage(cmdBuf, bufferSize, pixels, imageCreateInfo);
+      {
+        nvvkTexture texture;
+        texture = m_alloc.createImage(cmdBuf, bufferSize, pixels, imageCreateInfo);
 
-      nvvkpp::image::generateMipmaps(cmdBuf, texture.image, format, imgSize,
-                                     imageCreateInfo.mipLevels);
-      texture.descriptor =
-          nvvkpp::image::create2DDescriptor(m_device, texture.image, samplerCreateInfo, format);
-      m_textures.push_back(texture);
+        nvvkpp::image::generateMipmaps(cmdBuf, texture.image, format, imgSize,
+                                       imageCreateInfo.mipLevels);
+        texture.descriptor =
+            nvvkpp::image::create2DDescriptor(m_device, texture.image, samplerCreateInfo, format);
+        m_textures.push_back(texture);
+      }
     }
   }
 }

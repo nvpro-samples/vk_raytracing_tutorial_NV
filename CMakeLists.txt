@@ -28,6 +28,7 @@ _add_package_ImGUI()
 _add_package_ZLIB()
 _add_shared_sources_lib()
 
+add_subdirectory(ray_tracing__advance) 
 add_subdirectory(ray_tracing__before) 
 add_subdirectory(ray_tracing__simple)
 add_subdirectory(ray_tracing_animation)
@@ -37,7 +38,6 @@ add_subdirectory(ray_tracing_jitter_cam)
 add_subdirectory(ray_tracing_manyhits)
 add_subdirectory(ray_tracing_reflections)
 add_subdirectory(ray_tracing_instances)
-
 add_subdirectory(ray_tracing_intersection)
 
 if(ADD_SHARED_SOURCES)

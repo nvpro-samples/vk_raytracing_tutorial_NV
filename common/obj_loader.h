@@ -11,7 +11,7 @@
 #include <vector>
 
 // Structure holding the material
-struct MatrialObj
+struct MaterialObj
 {
   nvmath::vec3f ambient       = nvmath::vec3f(0.1f, 0.1f, 0.1f);
   nvmath::vec3f diffuse       = nvmath::vec3f(0.7f, 0.7f, 0.7f);
@@ -21,7 +21,7 @@ struct MatrialObj
   float         shininess     = 0.f;
   float         ior           = 1.0f;  // index of refraction
   float         dissolve      = 1.f;   // 1 == opaque; 0 == fully transparent
-                                       // illumination model (see http://www.fileformat.info/format/material/)
+      // illumination model (see http://www.fileformat.info/format/material/)
   int illum     = 0;
   int textureID = -1;
 };
@@ -49,7 +49,7 @@ public:
 
   std::vector<VertexObj>   m_vertices;
   std::vector<uint32_t>    m_indices;
-  std::vector<MatrialObj>  m_materials;
+  std::vector<MaterialObj> m_materials;
   std::vector<std::string> m_textures;
   std::vector<uint32_t>    m_matIndx;
 };

@@ -29,6 +29,8 @@ body {
 	}
 }
 
+
+
 /* for narrow screens or print, hide table of contents */
 @media screen and (max-width: 64em) {
     .md .longTOC, .md .mediumTOC, .md .shortTOC { display: none; }

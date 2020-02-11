@@ -43,6 +43,7 @@
 #include "nvvkpp/commands_vkpp.hpp"
 #include "nvvkpp/context_vkpp.hpp"
 #include "nvvkpp/utilities_vkpp.hpp"
+#include <random>
 
 //////////////////////////////////////////////////////////////////////////
 #define UNUSED(x) (void)(x)
@@ -60,20 +61,51 @@ static void onErrorCallback(int error, const char* description)
 // Extra UI
 void renderUI(HelloVulkan& helloVk)
 {
-  static int item = 1;
+  static int item    = 1;
+  bool       changed = false;
   if(ImGui::Combo("Up Vector", &item, "X\0Y\0Z\0\0"))
   {
     nvmath::vec3f pos, eye, up;
     CameraManip.getLookat(pos, eye, up);
     up = nvmath::vec3f(item == 0, item == 1, item == 2);
     CameraManip.setLookat(pos, eye, up);
+    changed = true;
   }
-  ImGui::SliderFloat3("Light Position", &helloVk.m_pushConstant.lightPosition.x, -20.f, 20.f);
-  ImGui::SliderFloat("Light Intensity", &helloVk.m_pushConstant.lightIntensity, 0.f, 100.f);
-  ImGui::SliderInt("Max Depth", &helloVk.m_rtPushConstants.maxDepth, 1, 100);
-  ImGui::RadioButton("Point", &helloVk.m_pushConstant.lightType, 0);
+  changed |= ImGui::RadioButton("Point", &helloVk.m_pushConstants.lightType, 0);
   ImGui::SameLine();
-  ImGui::RadioButton("Infinite", &helloVk.m_pushConstant.lightType, 1);
+  changed |= ImGui::RadioButton("Spot", &helloVk.m_pushConstants.lightType, 1);
+  ImGui::SameLine();
+  changed |= ImGui::RadioButton("Infinite", &helloVk.m_pushConstants.lightType, 2);
+  if(helloVk.m_pushConstants.lightType < 2)
+  {
+    changed |= ImGui::SliderFloat3("Light Position", &helloVk.m_pushConstants.lightPosition.x,
+                                   -20.f, 20.f);
+  }
+  if(helloVk.m_pushConstants.lightType > 0)
+  {
+    changed |= ImGui::SliderFloat3("Light Direction", &helloVk.m_pushConstants.lightDirection.x,
+                                   -1.f, 1.f);
+  }
+  if(helloVk.m_pushConstants.lightType < 2)
+  {
+    changed |=
+        ImGui::SliderFloat("Light Intensity", &helloVk.m_pushConstants.lightIntensity, 0.f, 500.f);
+  }
+  if(helloVk.m_pushConstants.lightType == 1)
+  {
+    float dCutoff    = rad2deg(acos(helloVk.m_pushConstants.lightSpotCutoff));
+    float dOutCutoff = rad2deg(acos(helloVk.m_pushConstants.lightSpotOuterCutoff));
+    changed |= ImGui::SliderFloat("Cutoff", &dCutoff, 0.f, 45.f);
+    changed |= ImGui::SliderFloat("OutCutoff", &dOutCutoff, 0.f, 45.f);
+    dCutoff = dCutoff > dOutCutoff ? dOutCutoff : dCutoff;
+
+    helloVk.m_pushConstants.lightSpotCutoff      = cos(deg2rad(dCutoff));
+    helloVk.m_pushConstants.lightSpotOuterCutoff = cos(deg2rad(dOutCutoff));
+  }
+  changed |= ImGui::InputInt("Max Frames", &helloVk.m_maxFrames);
+  helloVk.m_maxFrames = std::max(helloVk.m_maxFrames, 1);
+  if(changed)
+    helloVk.resetFrame();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -127,6 +159,7 @@ int main(int argc, char** argv)
 
   // Requesting Vulkan extensions and layers
   nvvkpp::ContextCreateInfo contextInfo;
+  contextInfo.setVersion(1, 2);
   contextInfo.addInstanceLayer("VK_LAYER_LUNARG_monitor", true);
   contextInfo.addInstanceExtension(VK_KHR_SURFACE_EXTENSION_NAME);
 #ifdef WIN32
@@ -170,20 +203,57 @@ int main(int argc, char** argv)
   // Setup Imgui
   helloVk.initGUI(0);  // Using sub-pass 0
 
-  // Creation of the example
-  // Creation of the example
-  helloVk.loadModel(nvh::findFile("media/scenes/cube.obj", defaultSearchPaths),
-                    nvmath::translation_mat4(nvmath::vec3f(-2, 0, 0))
-                        * nvmath::scale_mat4(nvmath::vec3f(.1f, 5.f, 5.f)));
-  helloVk.loadModel(nvh::findFile("media/scenes/cube.obj", defaultSearchPaths),
-                    nvmath::translation_mat4(nvmath::vec3f(2, 0, 0))
-                        * nvmath::scale_mat4(nvmath::vec3f(.1f, 5.f, 5.f)));
-  helloVk.loadModel(nvh::findFile("media/scenes/cube_multi.obj", defaultSearchPaths));
-  helloVk.loadModel(nvh::findFile("media/scenes/plane.obj", defaultSearchPaths),
-                    nvmath::translation_mat4(nvmath::vec3f(0, -1, 0)));
+  // Creating scene
+  helloVk.loadModel(nvh::findFile("media/scenes/Medieval_building.obj", defaultSearchPaths));
+  helloVk.loadModel(nvh::findFile("media/scenes/plane.obj", defaultSearchPaths));
+  helloVk.loadModel(nvh::findFile("media/scenes/wuson.obj", defaultSearchPaths),
+                    nvmath::scale_mat4(nvmath::vec3f(0.5f))
+                        * nvmath::translation_mat4(nvmath::vec3f(0.0f, 0.0f, 6.0f)));
+
+  std::random_device              rd;  // Will be used to obtain a seed for the random number engine
+  std::mt19937                    gen(rd());  // Standard mersenne_twister_engine seeded with rd()
+  std::normal_distribution<float> dis(2.0f, 2.0f);
+  std::normal_distribution<float> disn(0.5f, 0.2f);
+  int                             wusonIndex = static_cast<int>(helloVk.m_objModel.size() - 1);
+
+  for(int n = 0; n < 50; ++n)
+  {
+
+    ObjInstance inst;
+    inst.objIndex       = wusonIndex;
+    inst.txtOffset      = 0;
+    float         scale = fabsf(disn(gen));
+    nvmath::mat4f mat   = nvmath::translation_mat4(nvmath::vec3f{dis(gen), 0.f, dis(gen) + 6});
+    //    mat              = mat * nvmath::rotation_mat4_x(dis(gen));
+    mat              = mat * nvmath::scale_mat4(nvmath::vec3f(scale));
+    inst.transform   = mat;
+    inst.transformIT = nvmath::transpose(nvmath::invert((inst.transform)));
+    helloVk.m_objInstance.push_back(inst);
+  }
+
+  // Creation of implicit geometry
+  MaterialObj mat;
+  // Reflective
+  mat.diffuse   = nvmath::vec3f(0, 0, 0);
+  mat.specular  = nvmath::vec3f(1.f);
+  mat.shininess = 0.0;
+  mat.illum     = 3;
+  helloVk.addImplMaterial(mat);
+  // Transparent
+  mat.diffuse  = nvmath::vec3f(0.4, 0.4, 1);
+  mat.illum    = 4;
+  mat.dissolve = 0.5;
+  helloVk.addImplMaterial(mat);
+  helloVk.addImplCube({-6.1, 0, -6}, {-6, 10, 6}, 0);
+  helloVk.addImplSphere({1, 2, 4}, 1.f, 1);
 
 
-  helloVk.createOffscreenRender();
+  helloVk.initOffscreen();
+  Offscreen& offscreen = helloVk.offscreen();
+
+  helloVk.createImplictBuffers();
+
+
   helloVk.createDescriptorSetLayout();
   helloVk.createGraphicsPipeline();
   helloVk.createUniformBuffer();
@@ -192,15 +262,6 @@ int main(int argc, char** argv)
 
   // #VKRay
   helloVk.initRayTracing();
-  helloVk.createBottomLevelAS();
-  helloVk.createTopLevelAS();
-  helloVk.createRtDescriptorSet();
-  helloVk.createRtPipeline();
-  helloVk.createRtShaderBindingTable();
-
-  helloVk.createPostDescriptor();
-  helloVk.createPostPipeline();
-  helloVk.updatePostDescriptorSet();
 
 
   nvmath::vec4f clearColor   = nvmath::vec4f(1, 1, 1, 1.00f);
@@ -227,8 +288,14 @@ int main(int argc, char** argv)
     // Show UI window.
     if(1 == 1)
     {
-      ImGui::ColorEdit3("Clear color", reinterpret_cast<float*>(&clearColor));
-      ImGui::Checkbox("Ray Tracer mode", &useRaytracer);  // Switch between raster and ray tracing
+      bool changed = false;
+      // Edit 3 floats representing a color
+      changed |= ImGui::ColorEdit3("Clear color", reinterpret_cast<float*>(&clearColor));
+      // Switch between raster and ray tracing
+      changed |= ImGui::Checkbox("Ray Tracer mode", &useRaytracer);
+      if(changed)
+        helloVk.resetFrame();
+
 
       renderUI(helloVk);
       ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
@@ -255,8 +322,8 @@ int main(int argc, char** argv)
       vk::RenderPassBeginInfo offscreenRenderPassBeginInfo;
       offscreenRenderPassBeginInfo.setClearValueCount(2);
       offscreenRenderPassBeginInfo.setPClearValues(clearValues);
-      offscreenRenderPassBeginInfo.setRenderPass(helloVk.m_offscreenRenderPass);
-      offscreenRenderPassBeginInfo.setFramebuffer(helloVk.m_offscreenFramebuffer);
+      offscreenRenderPassBeginInfo.setRenderPass(offscreen.renderPass());
+      offscreenRenderPassBeginInfo.setFramebuffer(offscreen.frameBuffer());
       offscreenRenderPassBeginInfo.setRenderArea({{}, helloVk.getSize()});
 
       // Rendering Scene
@@ -283,7 +350,7 @@ int main(int argc, char** argv)
 
       cmdBuff.beginRenderPass(postRenderPassBeginInfo, vk::SubpassContents::eInline);
       // Rendering tonemapper
-      helloVk.drawPost(cmdBuff);
+      offscreen.draw(cmdBuff, helloVk.getSize());
       // Rendering UI
       ImGui::RenderDrawDataVK(cmdBuff, ImGui::GetDrawData());
       cmdBuff.endRenderPass();
