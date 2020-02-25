@@ -1,0 +1,86 @@
+/* Custom stylesheet for API documentation by Aras Pranckevičius, http://aras-p.info/
+   and tweaked by Morgan McGuire.
+   Licensed as public domain or BSD 2-clause, whichever is more convenient for you.
+   Originally from https://github.com/aras-p/markdeep-docs-style */
+body {
+    max-width: 50em;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    text-align: left;
+    /*margin: 1.5em;*/
+    padding: 0 1em;
+}
+
+/* for narrow screens or print, hide table of contents */
+@media screen {
+    .md .longTOC, .md .mediumTOC, .md .shortTOC { display: none; }
+}
+
+@media print {
+    .md .longTOC, .md .mediumTOC, .md .shortTOC { display: none; }
+    body { max-width: 100%; }
+}
+
+.md div.title {
+    margin: 0.4em 0 0 0;
+    padding: 0;
+    text-align: inherit;
+}
+
+.md div.subtitle {
+    text-align: inherit;
+}
+
+/* faint border below headings */
+.md h1, .md h2, .md h3, .md h4,
+.md .nonumberh1, .md .nonumberh2, .md .nonumberh3, .md .nonumberh4 {
+    border-bottom: 1px solid rgba(0,0,0,.1);
+}
+/* heading font styles */
+.md h1, .md .nonumberh1, .md div.title {
+    font-size: 150%;
+    font-weight: 600;
+    color: rgba(0,0,0,.7);
+}
+.md h2, .md .nonumberh2 {
+    font-size: 120%;
+    font-weight: 400;
+    color: rgba(0,0,0,.9);
+}
+.md h3, .md .nonumberh3 {
+    font-size: 110%;
+    font-weight: 400;
+    color: rgba(0,0,0,.7);
+}
+/* link styling */
+.md a:link, .md a:visited {
+    color: #3f51b5;
+}
+
+/* inline and block code */
+.md code, .md pre.listing {
+    background-color: rgba(0,0,0,.05);
+    padding: 0.1em 0.2em;
+    border-radius: 0.15em;
+}
+.md pre.listing code {
+    background-color: transparent;
+    padding: 0;
+    border: none;
+}
+
+/* tables; use fainter colors than regular markdeep style */
+.md table.table {
+    font-size: 90%;
+}
+.md table.table th {
+    border: none;
+    background-color: #ccc;
+    color: rgba(0,0,0,.6);
+}
+.md table.table tr, .md table.table td {
+    border-color: #eee;
+}
+.md table.table tr:nth-child(even) {
+    background-color: #f4f4f4;
+}
+
