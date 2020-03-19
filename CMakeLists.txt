@@ -21,13 +21,13 @@ if(NOT BASE_DIRECTORY) # if not defined, it means this cmake file was called as 
   endif()
 endif(NOT BASE_DIRECTORY)
 
-if(EXISTS ${BASE_DIRECTORY}/shared_sources/CMakeLists_include.txt)
-  INCLUDE(${BASE_DIRECTORY}/shared_sources/CMakeLists_include.txt)
-else()
-  Message(FATAL_ERROR "could not find base directory, please set BASE_DIRECTORY to folder containing shared_sources")
-endif()
+ if(EXISTS ${BASE_DIRECTORY}/shared_sources/CMakeLists_include.txt)
+   INCLUDE(${BASE_DIRECTORY}/shared_sources/CMakeLists_include.txt)
+ else()
+   Message(FATAL_ERROR "could not find base directory, please set BASE_DIRECTORY to folder containing shared_sources")
+ endif()
+
 _add_package_VulkanSDK()
-_add_package_OpenGL()
 _add_package_ImGUI()
 _add_package_ZLIB()
 _add_shared_sources_lib()
@@ -43,5 +43,4 @@ add_subdirectory(ray_tracing_manyhits)
 add_subdirectory(ray_tracing_reflections)
 add_subdirectory(ray_tracing_instances)
 add_subdirectory(ray_tracing_intersection)
-
 
