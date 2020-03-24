@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
 
 get_filename_component(PROJNAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+SET(PROJNAME vk_${PROJNAME}_NV)
+
 Project(${PROJNAME})
 Message(STATUS "-------------------------------")
 Message(STATUS "Processing Project ${PROJNAME}:")

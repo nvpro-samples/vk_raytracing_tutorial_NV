@@ -9,29 +9,29 @@
 
 # Introduction
 
-This tutorial chapter shows how to use intersection shader and render different primitives with different materials.
+This tutorial chapter shows how to use intersection shaders and to render different primitives with different materials.
 
 This is an extension of the Vulkan ray tracing [tutorial](vkrt_tutorial.md.htm).
 
 (insert setup.md.html here)
 
-## High Level Implementation
+## High-Level Implementation
 
-On a high level view, we will
+From a high-level view, we will
 
-* Add 2.000.000 axis aligned bounding boxes in a BLAS
-* 2 materials will be added
-* Every second intersected object will be a sphere or a cube and will use one of the two material.
+* Add two million axis-aligned bounding boxes in a BLAS
+* Add two materials, one representing a sphere and the other representing a cube.
+* Objects will alternate between these two materials.
 
 To do this, we will need to:
 
 * Add an intersection shader (.rint)
 * Add a new closest hit shader (.chit)
-* Create `VkGeometryNV` from `VkGeometryAABBNV`
+* Create `VkGeometryNV` objects from `VkGeometryAABBNV` objects
 
 ## Creating all spheres
 
-In the HelloVulkan class, we will add the structures we will need. First the structure that defines a sphere.
+In the `HelloVulkan` class in `hello_vulkan.h`, we will add the structures we will need. First, we need to add the structure that defines a sphere:
 
 ~~~~ C++
   struct Sphere
@@ -41,7 +41,7 @@ In the HelloVulkan class, we will add the structures we will need. First the str
   };
 ~~~~
 
-Then we need the Aabb structure holding all the spheres, but also used for the creation of the BLAS (`VK_GEOMETRY_TYPE_AABBS_NV`). 
+Then we need the `Aabb` structure that will be used to hold all the spheres and also to create the BLAS (using `VK_GEOMETRY_TYPE_AABBS_NV`). 
 
 ~~~~ C++
   struct Aabb
@@ -51,28 +51,33 @@ Then we need the Aabb structure holding all the spheres, but also used for the c
   };
 ~~~~
 
-All the information will need to be hold in buffers, which will be available to the shaders.
+All the information will need to be held in buffers, which will be available to the shaders.
 
 <script type="preformatted">
 ~~~~ C++
   std::vector<Sphere> m_spheres;                // All spheres
   nvvkBuffer          m_spheresBuffer;          // Buffer holding the spheres
-  nvvkBuffer          m_spheresAabbBuffer;      // Buffer of all Aabb
+  nvvkBuffer          m_spheresAabbBuffer;      // Buffer of all AABBs
   nvvkBuffer          m_spheresMatColorBuffer;  // Multiple materials
-  nvvkBuffer          m_spheresMatIndexBuffer;  // Define which sphere uses which material
+  nvvkBuffer          m_spheresMatIndexBuffer;  // Define which material each sphere uses
 ~~~~
 
-Finally, there are two functions, one to create the spheres, and one that will create the `VkGeometryNV` for the BLAS.
+Finally, there are two functions, one to create the spheres, and one that will create the `VkGeometryNV`  object for the BLAS.
 
 ~~~~ C++
   void                createSpheres();
   vk::GeometryNV      sphereToVkGeometryNV();
 ~~~~
 
-The following implementation will create 2.000.000 spheres at random positions and radius. It will create the Aabb from the sphere definition, two materials which will be assigned alternatively to each object. All the created information will be moved to Vulkan buffers to be accessed by the intersection and closest shaders.
+In `hello_vulkan.cpp`, we will need to include the `<random>` header for random number generation:
 
 ~~~~ C++
+#include <random>
+~~~~
 
+The following implementation of `createSpheres` will create two million spheres with random positions and radii. It will then create an AABB from each sphere's definition, and two materials which will be assigned alternately to each object. All the created information will be moved to Vulkan buffers to be accessed by the intersection and closest hit shaders.
+
+~~~~ C++
 //--------------------------------------------------------------------------------------------------
 // Creating all spheres
 //
@@ -93,7 +98,7 @@ void HelloVulkan::createSpheres()
     m_spheres.emplace_back(s);
   }
 
-  // Axis aligned bounding box of each sphere
+  // Axis-aligned bounding box of each sphere
   std::vector<Aabb> aabbs;
   for(const auto& s : m_spheres)
   {
@@ -104,9 +109,9 @@ void HelloVulkan::createSpheres()
   }
 
   // Creating two materials
-  MatrialObj mat;
+  MaterialObj mat;
   mat.diffuse = vec3f(0, 1, 1);
-  std::vector<MatrialObj> materials;
+  std::vector<MaterialObj> materials;
   std::vector<int>        matIdx;
   materials.emplace_back(mat);
   mat.diffuse = vec3f(1, 1, 0);
@@ -136,7 +141,7 @@ void HelloVulkan::createSpheres()
 }
 ~~~~
 
-Do not forget to destroy the buffers in `destroyResources()`
+Do not forget to destroy the buffers in `destroyResources()`:
 
 ~~~~ C++
   m_alloc.destroy(m_spheresBuffer);
@@ -145,9 +150,9 @@ Do not forget to destroy the buffers in `destroyResources()`
   m_alloc.destroy(m_spheresMatIndexBuffer);
 ~~~~
 
-We need a new bottom level acceleration structure (BLAS) to hold the implicit primitives. For efficiency and since all those primitives are static, they will all be added in a single BLAS.
+We need a new bottom-level acceleration structure (BLAS) to hold the implicit primitives. For efficiency and since all those primitives are static, they will all be added in a single BLAS.
 
-What is changing compare to triangle primitive is the Aabb data (see Aabb structure) and the geometry type (`VK_GEOMETRY_TYPE_AABBS_NV`).
+Compared to only using triangle primitives, the things that are changing are the AABB data (see the `Aabb` structure) and the geometry type (`VK_GEOMETRY_TYPE_AABBS_NV`).
 
 ~~~~ C++
 //--------------------------------------------------------------------------------------------------
@@ -173,7 +178,7 @@ vk::GeometryNV HelloVulkan::sphereToVkGeometryNV()
 
 ## Setting up the scene
 
-In `main.cpp`, where we are loading the OBJ model, we can replace it with
+In `main.cpp`, we can replace the two `loadModel` calls with
 
 ~~~~ C++
   // Creation of the example
@@ -183,7 +188,7 @@ In `main.cpp`, where we are loading the OBJ model, we can replace it with
 
 **Note**: it is possible to have more OBJ models, but the spheres will need to be added after all of them.
 
-The scene will be large, better to move the camera out
+The scene will be large, so we'll move the camera further out by replacing the `CameraManip.setLookat` call in `main` with
 
 ~~~~ C++
   CameraManip.setLookat(nvmath::vec3f(20, 20, 20), nvmath::vec3f(0, 1, 0), nvmath::vec3f(0, 1, 0));
@@ -193,7 +198,7 @@ The scene will be large, better to move the camera out
 
 ### BLAS
 
-The function `createBottomLevelAS()` is creating a BLAS per OBJ, the following modification will add a new BLAS containing the Aabb's of all spheres.
+The function `createBottomLevelAS()` currently creates a BLAS per OBJ. The following modification will add a new BLAS containing the AABBs of all spheres:
 
 ~~~~ C++
 void HelloVulkan::createBottomLevelAS()
@@ -218,9 +223,9 @@ void HelloVulkan::createBottomLevelAS()
 
 ### TLAS
 
-Similarly in `createTopLevelAS()`, the top level acceleration structure will need to add a reference to the BLAS of the spheres. We are setting the instanceID and blasID to the last element, which is why the sphere BLAS must be added after everything else.
+Similarly, in `createTopLevelAS()`, the top-level acceleration structure will need to add a reference to the BLAS of the spheres. We will set the instanceID and blasID to the last element, which is why the sphere BLAS must be added after everything else.
 
-The hitGroupId will be set to 1 instead of 0. We need to add a new hit group for the implicit primitives, since we will need to compute attributes like the  normal, since they are not provide like with triangle primitives.
+The hitGroupId will be set to 1 instead of 0. We need to add a new hit group for the implicit primitives, since we will need to compute attributes like the normal, since they are not provided like they are with triangle primitives.
 
 Just before building the TLAS, we need to add the following
 
@@ -241,7 +246,7 @@ Just before building the TLAS, we need to add the following
 
 To access the newly created buffers holding all the spheres and materials, some changes are required to the descriptors.
 
-In function `createDescriptorSetLayout()`, the addition of the material and material index need to be instructed.
+In function `createDescriptorSetLayout()`, an additional material and material index needs to be constructed.
 
 ~~~~ C++
   // Materials (binding = 1)
@@ -252,7 +257,7 @@ In function `createDescriptorSetLayout()`, the addition of the material and mate
       vkDS(4, vkDT::eStorageBuffer, nbObj + 1, vkSS::eFragment | vkSS::eClosestHitNV));
 ~~~~
 
-And the new buffer holding the spheres
+As well as a new buffer holding the spheres:
 
 ~~~~ C++
   // Storing spheres (binding = 7)
@@ -260,9 +265,9 @@ And the new buffer holding the spheres
       vkDS(7, vkDT::eStorageBuffer, 1, vkSS::eClosestHitNV | vkSS::eIntersectionNV));
 ~~~~
 
-The function `updateDescriptorSet()` which is writing the values of the buffer need also to be modified.
+The function `updateDescriptorSet()`, which writes the values of the buffers, also needs to be modified.
 
-At the end of the loop on all models, lets add the new material and material index.
+After the end of the loop over all models, let's add the new material and material index.
 
 ~~~~ C++
   for(auto& model : m_objModel)
@@ -276,7 +281,7 @@ At the end of the loop on all models, lets add the new material and material ind
   dbiMatIdx.emplace_back(m_spheresMatIndexBuffer.buffer, 0, VK_WHOLE_SIZE);
 ~~~~
 
-Then write the buffer for the spheres
+Then write the buffer for the spheres:
 
 ~~~~ C++
   vk::DescriptorBufferInfo dbiSpheres{m_spheresBuffer.buffer, 0, VK_WHOLE_SIZE};
@@ -285,9 +290,9 @@ Then write the buffer for the spheres
 
 ## Intersection Shader
 
-The intersection shader is added to the Hit Group `VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_NV`. In our example, we already have a Hit Group for triangle and a closest hit associated. We will add a new one, which will become the Hit Group ID (1), see the TLAS section.
+The intersection shader is added to the Hit Group `VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_NV`. In our example, we already have a Hit Group for triangles and an associated closest-hit shader. We will add a new hit group, which will become Hit Group 1 (corresponding to the `hitGroupId` used in the TLAS subsection).
 
-Here is how the two hit group looks like:
+Here is what the two hit groups look like in `HelloVulkan::createRtPipeline()`. We don't need to modify the other parts of the ray tracing pipeline:
 
 ~~~~ C++
   // Hit Group0 - Closest Hit
@@ -323,7 +328,7 @@ Here is how the two hit group looks like:
   }
 ~~~~
 
-And destroy the two shaders at the end
+And destroy the two new shaders at the end
 
 ~~~~ C++
   m_device.destroy(chit2SM);
@@ -353,9 +358,15 @@ struct Aabb
 
 ### raytrace.rint
 
-The intersection shader `raytrace.rint` need to be added to the shader directory and CMake to be rerun such that it is added to the project. The shader will be called every time a ray will hit one of the Aabb of the scene. Note that there are no Aabb information that can be retrieved in the intersection shader. It is also not possible to have the value of the hit point that the ray tracer might have calculated on the GPU.
+Now, we need to add a new intersection shader file named `raytrace.rint` to the shader directory, and re-run CMake, so that it gets added to the project.
 
-The only information we have is that one of the Aabb was hit and using the `gl_PrimitiveID`, it is possible to know which one it was. Then, with the information stored in the buffer, we can retrive the geometry information of the sphere.
+This shader will be called every time a ray hits one of the AABBs of the scene.
+Note that we use the `gl_PrimitiveID` of the AABB that was hit to look up the information about the AABB.
+That's because there is no AABB information (such as the coordinates of the AABB
+or the intersection point of the ray with the AABB that the GPU might have calculated)
+other than `gl_PrimitiveID` that is automatically passed to the intersection shader.
+However, using `gl_PrimitiveID` and the information stored in the buffer, we can
+retrieve the geometry information of the sphere.
 
 We first declare the extensions and include common files.
 
@@ -369,13 +380,13 @@ We first declare the extensions and include common files.
 #include "wavefront.glsl"
 ~~~~
 
-Then we **must** add the following, otherwise the intersection shader will not report any hit.
+Then we **must** add the following, otherwise the intersection shader will not report any hits:
 
 ~~~~ C++
 hitAttributeNV vec3 HitAttribute;
 ~~~~
 
-The following is the topology of all spheres, which we will be able to retrieve using `gl_PrimitiveID`.
+The following will store the geometry data for all of the spheres, allowing us to retrieve the current sphere's data using `gl_PrimitiveID`:
 
 ~~~~ C++
 layout(binding = 7, set = 1, scalar) buffer allSpheres_
@@ -385,7 +396,7 @@ layout(binding = 7, set = 1, scalar) buffer allSpheres_
 allSpheres;
 ~~~~
 
-We will implement two intersetion method against the incoming ray.
+Next, we define a structure for the incoming ray:
 
 ~~~~ C++
 struct Ray
@@ -395,7 +406,15 @@ struct Ray
 };
 ~~~~
 
-The sphere intersection
+We will implement functions to compute the intersection with the incoming ray
+against each type of object. Each will return -1 if there is no hit; otherwise,
+each will return the distance from the origin to the intersection point along the ray.
+
+More specifically, for a ray given by the equation $r(t) = origin + t * direction$,
+each function will return the $t$ that corresponds to the first intersection of
+the ray with the object. We'll filter out negative values of $t$ later in the file.
+
+Here's the sphere intersection function:
 
 ~~~~ C++
 // Ray-Sphere intersection
@@ -418,7 +437,7 @@ float hitSphere(const Sphere s, const Ray r)
 }
 ~~~~
 
-And the axis aligned bounding box intersection
+And here's the axis aligned bounding box intersection function:
 
 ~~~~ C++
 // Ray-AABB intersection
@@ -435,9 +454,7 @@ float hitAabb(const Aabb aabb, const Ray r)
 }
 ~~~~
 
-Both are returning -1 if there is no hit, otherwise, it returns the distance from to origin of the ray.
-
-Retrieving the ray is straight forward
+Retrieving the ray is straightforward:
 
 ~~~~ C++
 void main()
@@ -447,7 +464,7 @@ void main()
   ray.direction = gl_WorldRayDirectionNV;
 ~~~~
 
-And getting the information about the geometry enclosed in the Aabb can be done like this.
+And getting the information about the geometry enclosed in the AABB can be done like this.
 
 ~~~~ C++
   // Sphere data
@@ -472,48 +489,51 @@ Now we just need to know if we will hit a sphere or a cube.
     aabb.maximum = sphere.center + vec3(sphere.radius);
     tHit         = hitAabb(aabb, ray);
   }
-  ~~~~
+~~~~
 
 Intersection information is reported using `reportIntersectionNV`, with a distance from the origin and a second argument (hitKind) that can be used to differentiate the primitive type.
 
 ~~~~ C++
-
   // Report hit point
   if(tHit > 0)
     reportIntersectionNV(tHit, hitKind);
 }
 ~~~~
 
-The shader can be found [here](shaders/raytrace.rint)
+The complete shader can be found [here](ray_tracing_intersection/shaders/raytrace.rint).
 
 ### raytrace2.rchit
 
-The new closest hit can be found [here](shaders/raytrace2.rchit)
+We also added a new closest hit shader for procedural objects. 
+The new closest hit shader can be found [here](ray_tracing_intersection/shaders/raytrace2.rchit).
 
-This shader is almost identical to original `raytrace.rchit`, but since the primitive is implicit, we will only need to compute the normal for the primitive that was hit.
+As before, after adding this shader to the `shaders` directory, re-run CMake to
+add the file to the build process.
 
-We retrieve the world position from the ray and the `gl_HitTNV` which was set in the intersection shader.
+This shader is almost identical to the original `raytrace.rchit`, but since the primitive is implicit, we will only need to compute the normal for the primitive that was hit.
+
+We retrieve the world position from the ray and the value of `gl_HitTNV`, which was set in the intersection shader.
 
 ~~~~ C++
   vec3 worldPos = gl_WorldRayOriginNV + gl_WorldRayDirectionNV * gl_HitTNV;
 ~~~~
 
-The sphere information is retrieved the same way as in the `raytrace.rint` shader.
+The sphere information is retrieved the same way as in the `raytrace.rint` shader:
 
 ~~~~ C++
   Sphere instance = allSpheres.i[gl_PrimitiveID];
 ~~~~
 
-Then we compute the normal, as for a sphere.
+Then we compute the normal using the formula for a sphere.
 
 ~~~~ C++
   // Computing the normal at hit position
   vec3 normal = normalize(worldPos - instance.center);
 ~~~~
 
-To know if we have intersect a cube rather than a sphere, we are using  `gl_HitKindNV`, which was set in the second argument of `reportIntersectionNV`.
-
-So when this is a cube, we set the normal to the major axis.
+We determine if we intersected a cube instead of a sphere using `gl_HitKindNV`,
+which was set in the second argument of `reportIntersectionNV`. If we intersected
+a cube instead of a sphere, we set the normal to the major axis.
 
 ~~~~ C++
   // Computing the normal for a cube if the hit intersection was reported as 1
@@ -529,7 +549,7 @@ So when this is a cube, we set the normal to the major axis.
 
 # Final Code
 
-You can find the final code in the folder [ray_tracing_intersection](https://github.com/nvpro-samples/vk_raytracing_tutorial/tree/master/ray_tracing_intersection)
+You can find the final code in the [ray_tracing_intersection](https://github.com/nvpro-samples/vk_raytracing_tutorial/tree/master/ray_tracing_intersection) folder.
 
 </script>
 

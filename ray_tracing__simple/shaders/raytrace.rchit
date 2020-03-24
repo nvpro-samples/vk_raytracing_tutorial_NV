@@ -13,14 +13,12 @@ layout(location = 0) rayPayloadInNV hitPayload prd;
 layout(location = 1) rayPayloadNV bool isShadowed;
 
 layout(binding = 0, set = 0) uniform accelerationStructureNV topLevelAS;
-
-layout(binding = 2, set = 1, scalar) buffer ScnDesc { sceneDesc i[]; } scnDesc;
-layout(binding = 5, set = 1, scalar) buffer Vertices { Vertex v[]; } vertices[];
-layout(binding = 6, set = 1) buffer Indices { uint i[]; } indices[];
-
 layout(binding = 1, set = 1, scalar) buffer MatColorBufferObject { WaveFrontMaterial m[]; } materials[];
+layout(binding = 2, set = 1, scalar) buffer ScnDesc { sceneDesc i[]; } scnDesc;
 layout(binding = 3, set = 1) uniform sampler2D textureSamplers[];
 layout(binding = 4, set = 1)  buffer MatIndexColorBuffer { int i[]; } matIndex[];
+layout(binding = 5, set = 1, scalar) buffer Vertices { Vertex v[]; } vertices[];
+layout(binding = 6, set = 1) buffer Indices { uint i[]; } indices[];
 
 // clang-format on
 

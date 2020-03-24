@@ -153,10 +153,6 @@ int main(int argc, char** argv)
       NVPSystem::exePath() + std::string(PROJECT_RELDIRECTORY) + std::string("../"),
   };
 
-  // Enabling the extension feature
-  vk::PhysicalDeviceDescriptorIndexingFeaturesEXT indexFeature;
-  vk::PhysicalDeviceScalarBlockLayoutFeaturesEXT  scalarFeature;
-
   // Requesting Vulkan extensions and layers
   nvvkpp::ContextCreateInfo contextInfo;
   contextInfo.setVersion(1, 2);
@@ -172,8 +168,6 @@ int main(int argc, char** argv)
   contextInfo.addDeviceExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
   contextInfo.addDeviceExtension(VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME);
   contextInfo.addDeviceExtension(VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME);
-  contextInfo.addDeviceExtension(VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME, false, &indexFeature);
-  contextInfo.addDeviceExtension(VK_EXT_SCALAR_BLOCK_LAYOUT_EXTENSION_NAME, false, &scalarFeature);
   // #VKRay: Activate the ray tracing extension
   contextInfo.addDeviceExtension(VK_NV_RAY_TRACING_EXTENSION_NAME);
   contextInfo.addDeviceExtension(VK_KHR_MAINTENANCE3_EXTENSION_NAME);

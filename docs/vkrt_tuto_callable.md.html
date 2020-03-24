@@ -1,6 +1,6 @@
 ﻿<meta charset="utf-8" lang="en">
 **NVIDIA Vulkan Ray Tracing Tutorial**
-**Instances**
+**Callable Shaders**
 
 <small>Author: [Martin-Karl Lefrançois](https://devblogs.nvidia.com/author/mlefrancois/)</small>
 
@@ -9,24 +9,27 @@
 
 This is an extension of the Vulkan ray tracing [tutorial](vkrt_tutorial.md.htm).
 
-Ray tracing allow to use [callable shaders](https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/chap8.html#shaders-callable)
-in ray-generation, closest-hit, miss or another callable shader stage. 
-It is similar to an indirect function call, whitout having to link those shaders with the executable program. 
+Ray tracing allows using [callable shaders](https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/chap8.html#shaders-callable)
+in ray generation, closest hit, and miss shaders, as well as in other callable shaders.
+Calling a shader is similar to performing an indirect function call, without
+having to link the shaders that will be called with the executable program.
 
 (insert setup.md.html here)
 
 
 # Data Storage
 
-Data can only access data passed in to the callable from parent stage. There will be only one structure pass at a time and should be declared like for payload.
+Shaders can pass data into the shaders they call. Different shaders can take
+different structures of data. Each structure of data should be declared much
+like a ray tracing payload.
 
-In the parent stage, using the `callableDataNV` storage qualifier, it could be declared like:
+In the parent stage, a structure could be declared like this, using the `callableDataNV` storage qualifier:
 
 ~~~~ C++
 layout(location = 0) callableDataNV rayLight cLight;
 ~~~~
 
-where `rayLight` struct is defined in a shared file.
+where the `rayLight` struct is defined in a shared file.
 
 ~~~~ C++
 struct rayLight
@@ -38,24 +41,30 @@ struct rayLight
 };
 ~~~~
 
-And in the incoming callable shader, you must use the `callableDataInNV` storage qualifier.
+In the incoming callable shader, you must use the `callableDataInNV` storage qualifier,
+instead of `callableDataNV`.
 
 ~~~~ C++
 layout(location = 0) callableDataInNV rayLight cLight;
 ~~~~
 
+The callable shader can also modify the data in this structure, so that its
+parent shader can access it when it returns.
+
 # Execution
 
-To execute one of the callable shader, the parent stage need to call `executeCallableNV`.
+To execute one of the callable shaders, the parent stage needs to call `executeCallableNV`.
 
-The first parameter is the SBT record index, the second one correspond to the 'location' index.
+The first parameter is the SBT record index, and the second one is the `location` index of the structure to pass.
 
-Example of how it is called.
+For instance, for the example code above, we might call it like this:
 
 ~~~~ C++
 executeCallableNV(pushC.lightType, 0);
 ~~~~
 
+It'll then execute the callable shader with index `pushC.lightType` with the
+data in `cLight`.
 
 # Adding Callable Shaders to the SBT
 
@@ -91,7 +100,7 @@ callGroup.setGeneralShader(static_cast<uint32_t>(stages.size() - 1));
 m_rtShaderGroups.push_back(callGroup);
 ~~~~
 
-And at the end of the function, delete the shaders.
+At the end of the function, delete the shaders.
 
 ~~~~ C++
 m_device.destroy(call0);
@@ -101,33 +110,50 @@ m_device.destroy(call2);
 
 ### Shaders 
 
-Here are the source of all shaders
+Here is the source code for all three shaders. After adding these files to the
+`shaders` directory of the project, you'll need to re-run CMake, so that they
+show up in your IDE.
 
 * [light_point.rcall](https://github.com/nvpro-samples/vk_raytracing_tutorial/blob/master/ray_tracing_callable/shaders/light_point.rcall)
 * [light_spot.rcall](https://github.com/nvpro-samples/vk_raytracing_tutorial/blob/master/ray_tracing_callable/shaders/light_spot.rcall)
 * [light_inf.rcall](https://github.com/nvpro-samples/vk_raytracing_tutorial/blob/master/ray_tracing_callable/shaders/light_inf.rcall)
 
+You will also need to add the following `rayLight` struct to `raycommon.glsl`,
+so that it will be accessible from both the calling and called shaders.
 
-## Passing Callable to traceRaysNV
+~~~~ C++
+struct rayLight
+{
+  vec3  inHitPosition;
+  float outLightDistance;
+  vec3  outLightDir;
+  float outIntensity;
+};
+~~~~
 
-In `HelloVulkan::raytrace()`, we have to tell where the callable shader starts. Since they were added after the hit shader, we have in the SBT the following.
+[Here](https://github.com/nvpro-samples/vk_raytracing_tutorial/blob/master/ray_tracing_callable/shaders/raycommon.glsl) is the final code for `raycommon.glsl`.
+
+
+## Passing Callable Shaders to traceRaysNV
+
+In `HelloVulkan::raytrace()`, we have to tell `traceRaysNV` where the callable shaders start in the SBT. Since they were added after the hit shader, the SBT now contains the following shader group handles:
 
 ********************
-* +---------+
-* | ray-gen |
-* +---------+
-* | miss0   |   
-* | miss1   |
-* +---------+
-* | hit0    |
-* +---------+
-* | call0   |
-* | call1   |
-* | call2   |
-* +---------+
+* +--------+
+* | raygen |
+* +--------+
+* | miss0  |   
+* | miss1  |
+* +--------+
+* | hit0   |
+* +--------+
+* | call0  |
+* | call1  |
+* | call2  |
+* +--------+
 ********************
 
-Therefore, the callable starts at `4 * progSize`
+Therefore, the callable shaders start at `4 * progSize`.
 
 ~~~~ C++
 vk::DeviceSize callableGroupOffset = 4u * progSize;  // Jump over the previous shaders
@@ -147,7 +173,8 @@ m_size.width, m_size.height,                                     //
 
 # Calling the Callable Shaders
 
-In the closest-hit shader, instead of having a if-else case, we can now call directly the right shader base on the type of light.
+In the closest-hit shader, instead of having a if-else statement or a switch statement, we can now call the right shader directly based on the type of light. Here, you can also see
+the code that would be used without callable shaders.
 
 ~~~~ C++
 cLight.inHitPosition = worldPos;
@@ -185,13 +212,112 @@ cLight.inHitPosition = worldPos;
 #endif
 ~~~~
 
+[Here](https://github.com/nvpro-samples/vk_raytracing_tutorial/blob/master/ray_tracing_callable/shaders/raytrace.rchit) is the final code for `raytrace.rchit`.
+
+# Modifying Push Constants
+
+When we modified `raytrace.rchit`, we also added additional information for spot
+lights. We need to match this in the C++ code, by changing the `ObjPushConstant`
+definition in `hello_vulkan.h` to
+
+~~~~ C++
+  // Information pushed at each draw call
+  struct ObjPushConstant
+  {
+    nvmath::vec3f lightPosition{10.f, 15.f, 8.f};
+    float         lightIntensity{100.f};
+    nvmath::vec3f lightDirection{-1, -1, -1};
+    float         lightSpotCutoff{cos(deg2rad(12.5f))};
+    float         lightSpotOuterCutoff{cos(deg2rad(17.5f))};
+    int           instanceId{0};  // To retrieve the transformation matrix
+    int           lightType{0};   // 0: point, 1: infinite
+  };
+~~~~
+
+We also need to modify `RtPushConstant` at the end of `hello_vulkan.h`:
+~~~~ C++
+  struct RtPushConstant
+  {
+    nvmath::vec4f clearColor;
+    nvmath::vec3f lightPosition;
+    float         lightIntensity;
+    nvmath::vec3f lightDirection{-1, -1, -1};
+    float         lightSpotCutoff{deg2rad(12.5f)};
+    float         lightSpotOuterCutoff{deg2rad(17.5f)};
+    int           lightType;
+  } m_rtPushConstants;
+~~~~
+
+The push constants will also need to be accessible from callable shaders, so
+in `createRtPipeline`, modify the definition of `pushConstant` to include
+the `vk::ShaderStageFlagBits::eCallableNV` flag:
+
+~~~~ C++
+  vk::PushConstantRange pushConstant{vk::ShaderStageFlagBits::eRaygenNV
+                                         | vk::ShaderStageFlagBits::eClosestHitNV
+                                         | vk::ShaderStageFlagBits::eMissNV
+                                         | vk::ShaderStageFlagBits::eCallableNV,
+                                     0, sizeof(RtPushConstant)};
+~~~~
+
+Finally, in `HelloVulkan::raytrace`, copy the new data in `m_pushConstant` to
+`m_rtPushConstants` and make sure `m_rtPushConstants` is accessible from
+callable shaders:
+
+~~~~ C++
+  // Initializing push constant values
+  m_rtPushConstants.clearColor           = clearColor;
+  m_rtPushConstants.lightPosition        = m_pushConstant.lightPosition;
+  m_rtPushConstants.lightIntensity       = m_pushConstant.lightIntensity;
+  m_rtPushConstants.lightDirection       = m_pushConstant.lightDirection;
+  m_rtPushConstants.lightSpotCutoff      = m_pushConstant.lightSpotCutoff;
+  m_rtPushConstants.lightSpotOuterCutoff = m_pushConstant.lightSpotOuterCutoff;
+  m_rtPushConstants.lightType            = m_pushConstant.lightType;
+~~~~
+
+~~~~ C++
+  cmdBuf.pushConstants<RtPushConstant>(m_rtPipelineLayout,
+                                       vk::ShaderStageFlagBits::eRaygenNV
+                                           | vk::ShaderStageFlagBits::eClosestHitNV
+                                           | vk::ShaderStageFlagBits::eMissNV
+                                           | vk::ShaderStageFlagBits::eCallableNV,
+                                       0, m_rtPushConstants);
+~~~~
+
+# Modifying the User Interface
+
+At the moment, the user interface only has options for point and infinite lights.
+We need to add support for spot lights as well by changing the Dear ImGui calls
+at the end of `renderUI` to the following:
+
+~~~~ C++
+  ImGui::RadioButton("Point", &helloVk.m_pushConstant.lightType, 0);
+  ImGui::SameLine();
+  ImGui::RadioButton("Spot", &helloVk.m_pushConstant.lightType, 1);
+  ImGui::SameLine();
+  ImGui::RadioButton("Infinite", &helloVk.m_pushConstant.lightType, 2);
+  if(helloVk.m_pushConstant.lightType < 2)
+    ImGui::SliderFloat3("Light Position", &helloVk.m_pushConstant.lightPosition.x, -20.f, 20.f);
+  if(helloVk.m_pushConstant.lightType > 0)
+    ImGui::SliderFloat3("Light Direction", &helloVk.m_pushConstant.lightDirection.x, -1.f, 1.f);
+  if(helloVk.m_pushConstant.lightType < 2)
+    ImGui::SliderFloat("Light Intensity", &helloVk.m_pushConstant.lightIntensity, 0.f, 500.f);
+  if(helloVk.m_pushConstant.lightType == 1)
+  {
+    float dCutoff    = rad2deg(acos(helloVk.m_pushConstant.lightSpotCutoff));
+    float dOutCutoff = rad2deg(acos(helloVk.m_pushConstant.lightSpotOuterCutoff));
+    ImGui::SliderFloat("Cutoff", &dCutoff, 0.f, 45.f);
+    ImGui::SliderFloat("OutCutoff", &dOutCutoff, 0.f, 45.f);
+    dCutoff = dCutoff > dOutCutoff ? dOutCutoff : dCutoff;
+
+    helloVk.m_pushConstant.lightSpotCutoff      = cos(deg2rad(dCutoff));
+    helloVk.m_pushConstant.lightSpotOuterCutoff = cos(deg2rad(dOutCutoff));
+  }
+~~~~
+
 # Final Code
 
-You can find the final code in the folder [ray_tracing_callable](https://github.com/nvpro-samples/vk_raytracing_tutorial/tree/master/ray_tracing_callable)
-
-
-
-
+You can find the final code in the [ray_tracing_callable](https://github.com/nvpro-samples/vk_raytracing_tutorial/tree/master/ray_tracing_callable) folder.
 
 <!-- Markdeep: -->
 <link rel="stylesheet" href="vkrt_tutorial.css?">

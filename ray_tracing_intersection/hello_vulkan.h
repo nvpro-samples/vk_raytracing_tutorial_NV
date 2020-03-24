@@ -178,9 +178,9 @@ public:
 
   std::vector<Sphere> m_spheres;                // All spheres
   nvvkBuffer          m_spheresBuffer;          // Buffer holding the spheres
-  nvvkBuffer          m_spheresAabbBuffer;      // Buffer of all Aabb
+  nvvkBuffer          m_spheresAabbBuffer;      // Buffer of all AABBs
   nvvkBuffer          m_spheresMatColorBuffer;  // Multiple materials
-  nvvkBuffer          m_spheresMatIndexBuffer;  // Define which sphere uses which material
+  nvvkBuffer          m_spheresMatIndexBuffer;  // Define which material each sphere uses
   void                createSpheres();
   vk::GeometryNV      sphereToVkGeometryNV();
 };

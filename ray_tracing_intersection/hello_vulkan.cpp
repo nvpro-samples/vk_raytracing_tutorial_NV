@@ -694,7 +694,7 @@ void HelloVulkan::createSpheres()
     m_spheres.emplace_back(s);
   }
 
-  // Axis aligned bounding box of each sphere
+  // Axis-aligned bounding box of each sphere
   std::vector<Aabb> aabbs;
   for(const auto& s : m_spheres)
   {
