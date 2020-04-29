@@ -5,6 +5,12 @@ By [Martin-Karl Lefrançois](https://devblogs.nvidia.com/author/mlefrancois/),
    [Pascal Gautron](https://devblogs.nvidia.com/author/pgautron/), Neil Bickford
 </small>
 
+!!! Warning Newer KHR version
+    There is a newer version of this tutorial, based on VK_KHR_ray_tracing extension.<br>
+    Links:
+    
+    * Tutorial: https://nvpro-samples.github.io/vk_raytracing_tutorial_KHR/
+    * GitHub:  https://github.com/nvpro-samples/vk_raytracing_tutorial_KHR
 
 The focus of this document and the provided code is to showcase a basic integration of
 ray tracing within an existing Vulkan sample, using the
@@ -88,6 +94,11 @@ extension as well as its dependency
 contextInfo.addDeviceExtension(VK_NV_RAY_TRACING_EXTENSION_NAME);
 contextInfo.addDeviceExtension(VK_KHR_MAINTENANCE3_EXTENSION_NAME);
 ````
+
+!!! Error Vulkan 1.2.135.0
+    Known error in the Vulkan 1.2.135.0 SDK, where it is required to enable the VK_KHR_ray_tracing as well or
+    to fix the incorrect function calls in vulkan.hpp.
+
 
 In the `HelloVulkan` class in `hello_vulkan.h`, add an initialization function and a member storing the capabilities of
 the GPU for ray tracing:
@@ -1499,6 +1510,7 @@ tracing descriptor set. Add the binding of the material buffer and the array of 
 ```` C
 layout(binding = 1, set = 1, scalar) buffer MatColorBufferObject { WaveFrontMaterial m[]; } materials[];
 layout(binding = 3, set = 1) uniform sampler2D textureSamplers[];
+layout(binding = 4, set = 1, scalar) buffer MatIndex { int i[]; } matIndex[];
 ````
 
 The declaration of the material is the same as that used for the rasterizer and is defined in

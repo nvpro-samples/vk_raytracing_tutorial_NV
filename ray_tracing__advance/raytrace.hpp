@@ -27,10 +27,11 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include "nvvk/descriptorsets_vk.hpp"
 #include "vkalloc.hpp"
 
 #include "nvmath/nvmath.h"
-#include "nvvkpp/raytrace_vkpp.hpp"
+#include "nvvk/raytraceNV_vk.hpp"
 #include "obj.hpp"
 
 class Raytracer
@@ -38,7 +39,7 @@ class Raytracer
 public:
   void setup(const vk::Device&         device,
              const vk::PhysicalDevice& physicalDevice,
-             nvvkMemAllocator&         memAlloc,
+             nvvk::Allocator*            allocator,
              uint32_t                  queueFamily);
   void destroy();
 
@@ -57,23 +58,23 @@ public:
                           ObjPushConstants&        sceneConstants);
 
 private:
-  nvvkAllocator      m_alloc;  // Allocator for buffer, images, acceleration structures
+  nvvk::Allocator*     m_alloc;  // Allocator for buffer, images, acceleration structures
   vk::PhysicalDevice m_physicalDevice;
   vk::Device         m_device;
   int                m_graphicsQueueIndex{0};
-  nvvkpp::DebugUtil  m_debug;  // Utility to name objects
+  nvvk::DebugUtil    m_debug;  // Utility to name objects
 
 
   vk::PhysicalDeviceRayTracingPropertiesNV           m_rtProperties;
-  nvvkpp::RaytracingBuilder                          m_rtBuilder;
-  std::vector<vk::DescriptorSetLayoutBinding>        m_rtDescSetLayoutBind;
+  nvvk::RaytracingBuilderNV                          m_rtBuilder;
+  nvvk::DescriptorSetBindings                        m_rtDescSetLayoutBind;
   vk::DescriptorPool                                 m_rtDescPool;
   vk::DescriptorSetLayout                            m_rtDescSetLayout;
   vk::DescriptorSet                                  m_rtDescSet;
   std::vector<vk::RayTracingShaderGroupCreateInfoNV> m_rtShaderGroups;
   vk::PipelineLayout                                 m_rtPipelineLayout;
   vk::Pipeline                                       m_rtPipeline;
-  nvvkBuffer                                         m_rtSBTBuffer;
+  nvvk::Buffer                                         m_rtSBTBuffer;
 
   struct RtPushConstants
   {

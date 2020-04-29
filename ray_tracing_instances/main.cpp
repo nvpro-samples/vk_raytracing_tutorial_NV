@@ -32,6 +32,7 @@
 #include <array>
 #include <random>
 #include <vulkan/vulkan.hpp>
+VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -40,10 +41,10 @@
 #include "nvh/cameramanipulator.hpp"
 #include "nvh/fileoperations.hpp"
 #include "nvpsystem.hpp"
-#include "nvvkpp/appbase_vkpp.hpp"
-#include "nvvkpp/commands_vkpp.hpp"
-#include "nvvkpp/context_vkpp.hpp"
-#include "nvvkpp/utilities_vkpp.hpp"
+#include "nvvk/appbase_vkpp.hpp"
+#include "nvvk/commands_vk.hpp"
+#include "nvvk/context_vk.hpp"
+
 
 //////////////////////////////////////////////////////////////////////////
 #define UNUSED(x) (void)(x)
@@ -126,7 +127,7 @@ int main(int argc, char** argv)
   vk::PhysicalDeviceScalarBlockLayoutFeaturesEXT  scalarFeature;
 
   // Requesting Vulkan extensions and layers
-  nvvkpp::ContextCreateInfo contextInfo;
+  nvvk::ContextCreateInfo contextInfo;
   contextInfo.addInstanceLayer("VK_LAYER_LUNARG_monitor", true);
   contextInfo.addInstanceExtension(VK_KHR_SURFACE_EXTENSION_NAME);
 #ifdef WIN32
@@ -147,7 +148,7 @@ int main(int argc, char** argv)
   contextInfo.addDeviceExtension(VK_KHR_BIND_MEMORY_2_EXTENSION_NAME);
 
   // Creating Vulkan base application
-  nvvkpp::Context vkctx{};
+  nvvk::Context vkctx{};
   vkctx.initInstance(contextInfo);
   // Find all compatible devices
   auto compatibleDevices = vkctx.getCompatibleDevices(contextInfo);
@@ -162,7 +163,8 @@ int main(int argc, char** argv)
   const vk::SurfaceKHR surface = helloVk.getVkSurface(vkctx.m_instance, window);
   vkctx.setGCTQueueWithPresent(surface);
 
-  helloVk.setup(vkctx.m_device, vkctx.m_physicalDevice, vkctx.m_queueGCT.familyIndex);
+  helloVk.setup(vkctx.m_instance, vkctx.m_device, vkctx.m_physicalDevice,
+                vkctx.m_queueGCT.familyIndex);
   helloVk.createSurface(surface, SAMPLE_WIDTH, SAMPLE_HEIGHT);
   helloVk.createDepthBuffer();
   helloVk.createRenderPass();
@@ -256,7 +258,8 @@ int main(int argc, char** argv)
 
     // Clearing screen
     vk::ClearValue clearValues[2];
-    clearValues[0].setColor(nvvkpp::util::clearColor(clearColor));
+    clearValues[0].setColor(
+        std::array<float, 4>({clearColor[0], clearColor[1], clearColor[2], clearColor[3]}));
     clearValues[1].setDepthStencil({1.0f, 0});
 
     // Offscreen render pass
@@ -308,7 +311,6 @@ int main(int argc, char** argv)
   helloVk.destroyResources();
   helloVk.destroy();
 
-  vkctx.m_instance.destroySurfaceKHR(surface);
   vkctx.deinit();
 
   glfwDestroyWindow(window);

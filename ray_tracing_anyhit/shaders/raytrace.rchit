@@ -6,7 +6,7 @@
 #include "raycommon.glsl"
 #include "wavefront.glsl"
 
-hitAttributeNV vec3 attribs;
+hitAttributeNV vec2 attribs;
 
 // clang-format off
 layout(location = 0) rayPayloadInNV hitPayload prd;
