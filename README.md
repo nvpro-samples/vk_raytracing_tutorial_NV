@@ -2,6 +2,13 @@
 
 # NVIDIA Vulkan Ray Tracing Tutorials
 
+******************************************************************************************
+**Newer Tutorial version based on KHR**
+
+There is a newer version of this tutorial, based on VK_KHR_ray_tracing extension.
+* GitHub: https://github.com/nvpro-samples/vk_raytracing_tutorial_KHR
+******************************************************************************************
+
 The focus of this project and the provided code is to showcase a basic integration of
 ray tracing within an existing Vulkan sample, using the
 [`VK_NV_ray_tracing`](https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/vkspec.html#VK_NV_ray_tracing) extension.
