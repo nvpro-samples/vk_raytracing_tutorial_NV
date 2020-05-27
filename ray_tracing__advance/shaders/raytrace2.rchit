@@ -74,7 +74,7 @@ void main()
   executeCallableNV(pushC.lightType, 0);
 
   // Material of the object
-  WaveFrontMaterial mat = materials[gl_InstanceCustomIndexNV].m[impl.matId];
+  WaveFrontMaterial mat = materials[nonuniformEXT(gl_InstanceCustomIndexNV)].m[impl.matId];
 
 
   // Diffuse
