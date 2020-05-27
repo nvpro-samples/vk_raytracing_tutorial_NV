@@ -834,10 +834,10 @@ void HelloVulkan::createRtShaderBindingTable()
   auto groupCount =
       static_cast<uint32_t>(m_rtShaderGroups.size());               // 3 shaders: raygen, miss, chit
   uint32_t groupHandleSize = m_rtProperties.shaderGroupHandleSize;  // Size of a program identifier
-  uint32_t groupAlignSize  = m_rtProperties.shaderGroupBaseAlignment;
+  uint32_t baseAlignment   = m_rtProperties.shaderGroupBaseAlignment;
 
   // Fetch all the shader handles used in the pipeline, so that they can be written in the SBT
-  uint32_t sbtSize = groupCount * groupAlignSize;
+  uint32_t sbtSize = groupCount * baseAlignment;
 
   std::vector<uint8_t> shaderHandleStorage(sbtSize);
   m_device.getRayTracingShaderGroupHandlesNV(m_rtPipeline, 0, groupCount, sbtSize,
@@ -851,10 +851,10 @@ void HelloVulkan::createRtShaderBindingTable()
   }
 
   // Sizes
-  uint32_t rayGenSize = groupAlignSize;
-  uint32_t missSize   = groupAlignSize;
+  uint32_t rayGenSize = baseAlignment;
+  uint32_t missSize   = baseAlignment;
   uint32_t hitSize =
-      ROUND_UP(groupHandleSize + static_cast<int>(sizeof(HitRecordBuffer)), groupAlignSize);
+      ROUND_UP(groupHandleSize + static_cast<int>(sizeof(HitRecordBuffer)), baseAlignment);
   uint32_t newSbtSize = rayGenSize + 2 * missSize + 3 * hitSize;
 
   std::vector<uint8_t> sbtBuffer(newSbtSize);
@@ -921,14 +921,15 @@ void HelloVulkan::raytrace(const vk::CommandBuffer& cmdBuf, const nvmath::vec4f&
                                            | vk::ShaderStageFlagBits::eMissNV,
                                        0, m_rtPushConstants);
 
-  vk::DeviceSize progSize = m_rtProperties.shaderGroupHandleSize;  // Size of a program identifier
+  vk::DeviceSize handleSize = m_rtProperties.shaderGroupHandleSize;  // Size of a program identifier
   vk::DeviceSize progOffset =
       m_rtProperties.shaderGroupBaseAlignment;      // Size of a program identifier
   vk::DeviceSize rayGenOffset   = 0u * progOffset;  // Start at the beginning of m_sbtBuffer
   vk::DeviceSize missOffset     = 1u * progOffset;  // Jump over raygen
-  vk::DeviceSize missStride     = progSize;
+  vk::DeviceSize missStride     = progOffset;
   vk::DeviceSize hitGroupOffset = 3u * progOffset;  // Jump over the previous shaders
-  vk::DeviceSize hitGroupStride = ROUND_UP(progSize + sizeof(HitRecordBuffer), progOffset);
+  vk::DeviceSize hitGroupStride =
+      ROUND_UP(m_rtProperties.shaderGroupHandleSize + sizeof(HitRecordBuffer), progOffset);
 
 
   // m_sbtBuffer holds all the shader handles: raygen, n-miss, hit...
