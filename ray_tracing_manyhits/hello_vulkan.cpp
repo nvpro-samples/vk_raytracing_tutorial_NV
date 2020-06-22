@@ -814,7 +814,7 @@ void HelloVulkan::createRtPipeline()
 
   rayPipelineInfo.setMaxRecursionDepth(2);  // Ray depth
   rayPipelineInfo.setLayout(m_rtPipelineLayout);
-  m_rtPipeline = m_device.createRayTracingPipelineNV({}, rayPipelineInfo).value;
+  m_rtPipeline = static_cast<const vk::Pipeline&>(m_device.createRayTracingPipelineNV({}, rayPipelineInfo));
 
   m_device.destroy(raygenSM);
   m_device.destroy(missSM);

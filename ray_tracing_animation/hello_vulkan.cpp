@@ -810,7 +810,7 @@ void HelloVulkan::createRtPipeline()
 
   rayPipelineInfo.setMaxRecursionDepth(2);  // Ray depth
   rayPipelineInfo.setLayout(m_rtPipelineLayout);
-  m_rtPipeline = m_device.createRayTracingPipelineNV({}, rayPipelineInfo).value;
+  m_rtPipeline = static_cast<const vk::Pipeline&>(m_device.createRayTracingPipelineNV({}, rayPipelineInfo));
 
   m_device.destroy(raygenSM);
   m_device.destroy(missSM);
@@ -991,6 +991,6 @@ void HelloVulkan::createCompPipelines()
       nvvk::createShaderStageInfo(m_device,
                                   nvh::loadFile("shaders/anim.comp.spv", true, defaultSearchPaths),
                                   VK_SHADER_STAGE_COMPUTE_BIT);
-  m_compPipeline = m_device.createComputePipeline({}, computePipelineCreateInfo).value;
+  m_compPipeline = static_cast<const vk::Pipeline&>(m_device.createComputePipeline({}, computePipelineCreateInfo));
   m_device.destroy(computePipelineCreateInfo.stage.module);
 }
