@@ -37,7 +37,7 @@ layout(push_constant) uniform Constants
 }
 pushC;
 
-layout(location = 0) callableDataNV rayLight cLight;
+layout(location = 3) callableDataNV rayLight cLight;
 
 
 void main()
@@ -71,7 +71,7 @@ void main()
   }
 
   cLight.inHitPosition = worldPos;
-  executeCallableNV(pushC.lightType, 0);
+  executeCallableNV(pushC.lightType, 3);
 
   // Material of the object
   WaveFrontMaterial mat = materials[nonuniformEXT(gl_InstanceCustomIndexNV)].m[impl.matId];

@@ -36,7 +36,7 @@ layout(push_constant) uniform Constants
 }
 pushC;
 
-layout(location = 0) callableDataNV rayLight cLight;
+layout(location = 3) callableDataNV rayLight cLight;
 
 
 void main()
@@ -97,7 +97,7 @@ void main()
     cLight.outLightDistance = 10000000;
   }
 #else
-  executeCallableNV(pushC.lightType, 0);
+  executeCallableNV(pushC.lightType, 3);
 #endif
 
   // Material of the object

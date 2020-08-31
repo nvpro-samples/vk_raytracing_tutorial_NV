@@ -6,13 +6,10 @@
 #include "raycommon.glsl"
 #include "wavefront.glsl"
 
-hitAttributeNV vec3 HitAttribute;
-
 layout(binding = 7, set = 1, scalar) buffer allImpl_
 {
-  Implicit i[];
-}
-allImplicits;
+  Implicit allImplicits[];
+};
 
 
 struct Ray
@@ -60,7 +57,7 @@ void main()
   ray.direction = gl_WorldRayDirectionNV;
 
   // Sphere data
-  Implicit impl = allImplicits.i[gl_PrimitiveID];
+  Implicit impl = allImplicits[gl_PrimitiveID];
 
   float tHit    = -1;
   int   hitKind = impl.objType;

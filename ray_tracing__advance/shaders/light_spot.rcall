@@ -3,7 +3,7 @@
 #extension GL_GOOGLE_include_directive : enable
 #include "raycommon.glsl"
 
-layout(location = 0) callableDataInNV rayLight cLight;
+layout(location = 3) callableDataInNV rayLight cLight;
 
 layout(push_constant) uniform Constants
 {
@@ -14,7 +14,7 @@ layout(push_constant) uniform Constants
   float lightSpotCutoff;
   float lightSpotOuterCutoff;
   int   lightType;
-};
+}; 
 
 void main()
 {

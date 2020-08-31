@@ -346,7 +346,8 @@ void Raytracer::createRtPipeline(vk::DescriptorSetLayout& sceneDescLayout)
 
   rayPipelineInfo.setMaxRecursionDepth(2);  // Ray depth
   rayPipelineInfo.setLayout(m_rtPipelineLayout);
-  m_rtPipeline = static_cast<const vk::Pipeline&>(m_device.createRayTracingPipelineNV({}, rayPipelineInfo));
+  m_rtPipeline =
+      static_cast<const vk::Pipeline&>(m_device.createRayTracingPipelineNV({}, rayPipelineInfo));
 
   m_device.destroy(raygenSM);
   m_device.destroy(missSM);
@@ -388,7 +389,8 @@ void Raytracer::createRtShaderBindingTable()
 
   // Write the handles in the SBT
   void* mapped = m_alloc->map(m_rtSBTBuffer);
-  auto* pData  = reinterpret_cast<uint8_t*>(mapped);
+  memset(mapped, 0, sbtSize);
+  auto* pData = reinterpret_cast<uint8_t*>(mapped);
   for(uint32_t g = 0; g < groupCount; g++)
   {
     memcpy(pData, shaderHandleStorage.data() + g * groupHandleSize, groupHandleSize);  // raygen
