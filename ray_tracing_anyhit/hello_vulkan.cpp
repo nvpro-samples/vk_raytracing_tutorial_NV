@@ -333,7 +333,8 @@ void HelloVulkan::createTextureImages(const vk::CommandBuffer&        cmdBuf,
       o << "media/textures/" << texture;
       std::string txtFile = nvh::findFile(o.str(), defaultSearchPaths);
 
-      stbi_uc* stbi_pixels = stbi_load(txtFile.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+      stbi_uc* stbi_pixels =
+          stbi_load(txtFile.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 
       std::array<stbi_uc, 4> color{255u, 0u, 255u, 255u};
 
@@ -770,20 +771,31 @@ void HelloVulkan::createRtPipeline()
   m_rtShaderGroups.push_back(mg);
 
   // Hit Group - Closest Hit + AnyHit
+  // Payload 0
   vk::ShaderModule chitSM =
       nvvk::createShaderModule(m_device,  //
                                nvh::loadFile("shaders/raytrace.rchit.spv", true, paths));
-  vk::ShaderModule ahitSM =
+  vk::ShaderModule ahit0SM =
       nvvk::createShaderModule(m_device,  //
-                               nvh::loadFile("shaders/raytrace.rahit.spv", true, paths));
+                               nvh::loadFile("shaders/raytrace_0.rahit.spv", true, paths));
   vk::RayTracingShaderGroupCreateInfoNV hg{vk::RayTracingShaderGroupTypeNV::eTrianglesHitGroup,
                                            VK_SHADER_UNUSED_NV, VK_SHADER_UNUSED_NV,
                                            VK_SHADER_UNUSED_NV, VK_SHADER_UNUSED_NV};
   stages.push_back({{}, vk::ShaderStageFlagBits::eClosestHitNV, chitSM, "main"});
   hg.setClosestHitShader(static_cast<uint32_t>(stages.size() - 1));
-  stages.push_back({{}, vk::ShaderStageFlagBits::eAnyHitNV, ahitSM, "main"});
+  stages.push_back({{}, vk::ShaderStageFlagBits::eAnyHitNV, ahit0SM, "main"});
   hg.setAnyHitShader(static_cast<uint32_t>(stages.size() - 1));
   m_rtShaderGroups.push_back(hg);
+
+  // Payload 1
+  vk::ShaderModule ahit1SM =
+      nvvk::createShaderModule(m_device,  //
+                               nvh::loadFile("shaders/raytrace_1.rahit.spv", true, paths));
+  hg.setClosestHitShader(VK_SHADER_UNUSED_NV);  // Not used by shadow (skipped)
+  stages.push_back({{}, vk::ShaderStageFlagBits::eAnyHitNV, ahit1SM, "main"});
+  hg.setAnyHitShader(static_cast<uint32_t>(stages.size() - 1));
+  m_rtShaderGroups.push_back(hg);
+
 
   vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo;
 
@@ -813,13 +825,15 @@ void HelloVulkan::createRtPipeline()
 
   rayPipelineInfo.setMaxRecursionDepth(2);  // Ray depth
   rayPipelineInfo.setLayout(m_rtPipelineLayout);
-  m_rtPipeline = static_cast<const vk::Pipeline&>(m_device.createRayTracingPipelineNV({}, rayPipelineInfo));
+  m_rtPipeline =
+      static_cast<const vk::Pipeline&>(m_device.createRayTracingPipelineNV({}, rayPipelineInfo));
 
   m_device.destroy(raygenSM);
   m_device.destroy(missSM);
   m_device.destroy(shadowmissSM);
   m_device.destroy(chitSM);
-  m_device.destroy(ahitSM);
+  m_device.destroy(ahit0SM);
+  m_device.destroy(ahit1SM);
 }
 
 //--------------------------------------------------------------------------------------------------

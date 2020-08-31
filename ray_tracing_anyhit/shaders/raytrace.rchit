@@ -10,7 +10,7 @@ hitAttributeNV vec2 attribs;
 
 // clang-format off
 layout(location = 0) rayPayloadInNV hitPayload prd;
-layout(location = 1) rayPayloadNV bool isShadowed;
+layout(location = 1) rayPayloadNV shadowPayload prdShadow;
 
 layout(binding = 0, set = 0) uniform accelerationStructureNV topLevelAS;
 
@@ -99,16 +99,17 @@ void main()
   // Tracing shadow ray only if the light is visible from the surface
   if(dot(normal, L) > 0)
   {
-    float tMin   = 0.001;
-    float tMax   = lightDistance;
-    vec3  origin = gl_WorldRayOriginNV + gl_WorldRayDirectionNV * gl_HitTNV;
-    vec3  rayDir = L;
-    uint  flags  = gl_RayFlagsSkipClosestHitShaderNV;
-    isShadowed   = true;
+    float tMin      = 0.001;
+    float tMax      = lightDistance;
+    vec3  origin    = gl_WorldRayOriginNV + gl_WorldRayDirectionNV * gl_HitTNV;
+    vec3  rayDir    = L;
+    uint  flags     = gl_RayFlagsSkipClosestHitShaderNV;
+    prdShadow.isHit = true;
+    prdShadow.seed  = prd.seed;
     traceNV(topLevelAS,  // acceleration structure
             flags,       // rayFlags
             0xFF,        // cullMask
-            0,           // sbtRecordOffset
+            1,           // sbtRecordOffset
             0,           // sbtRecordStride
             1,           // missIndex
             origin,      // ray origin
@@ -117,8 +118,9 @@ void main()
             tMax,        // ray max range
             1            // payload (location = 1)
     );
+    prd.seed = prdShadow.seed;
 
-    if(isShadowed)
+    if(prdShadow.isHit)
     {
       attenuation = 0.3;
     }
