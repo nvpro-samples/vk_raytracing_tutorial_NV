@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 project(vk_raytracing_tutorial)
 
+
 #####################################################################################
 # look for shared_sources 1) as a sub-folder 2) at some other locations
 # this cannot be put anywhere else since we still didn't find CMakeLists_include.txt yet
@@ -20,6 +21,8 @@ if(NOT BASE_DIRECTORY) # if not defined, it means this cmake file was called as 
   else()
   endif()
 endif(NOT BASE_DIRECTORY)
+
+set(CMAKE_CXX_STANDARD 17)
 
  if(EXISTS ${BASE_DIRECTORY}/shared_sources/CMakeLists_include.txt)
    INCLUDE(${BASE_DIRECTORY}/shared_sources/CMakeLists_include.txt)
