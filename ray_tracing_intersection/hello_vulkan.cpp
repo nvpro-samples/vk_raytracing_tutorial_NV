@@ -339,7 +339,8 @@ void HelloVulkan::createTextureImages(const vk::CommandBuffer&        cmdBuf,
       o << "media/textures/" << texture;
       std::string txtFile = nvh::findFile(o.str(), defaultSearchPaths);
 
-      stbi_uc* stbi_pixels = stbi_load(txtFile.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+      stbi_uc* stbi_pixels =
+          stbi_load(txtFile.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 
       std::array<stbi_uc, 4> color{255u, 0u, 255u, 255u};
 
@@ -713,11 +714,11 @@ void HelloVulkan::createSpheres()
 
   // Creating two materials
   MaterialObj mat;
-  mat.diffuse = vec3f(0, 1, 1);
+  mat.diffuse = nvmath::vec3f(0, 1, 1);
   std::vector<MaterialObj> materials;
   std::vector<int>         matIdx;
   materials.emplace_back(mat);
-  mat.diffuse = vec3f(1, 1, 0);
+  mat.diffuse = nvmath::vec3f(1, 1, 0);
   materials.emplace_back(mat);
 
   // Assign a material to each sphere
@@ -941,7 +942,8 @@ void HelloVulkan::createRtPipeline()
 
   rayPipelineInfo.setMaxRecursionDepth(2);  // Ray depth
   rayPipelineInfo.setLayout(m_rtPipelineLayout);
-  m_rtPipeline = static_cast<const vk::Pipeline&>(m_device.createRayTracingPipelineNV({}, rayPipelineInfo));
+  m_rtPipeline =
+      static_cast<const vk::Pipeline&>(m_device.createRayTracingPipelineNV({}, rayPipelineInfo));
 
   m_device.destroy(raygenSM);
   m_device.destroy(missSM);

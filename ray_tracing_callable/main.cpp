@@ -180,7 +180,7 @@ int main(int argc, char** argv)
 
   helloVk.setup(vkctx.m_instance, vkctx.m_device, vkctx.m_physicalDevice,
                 vkctx.m_queueGCT.familyIndex);
-  helloVk.createSurface(surface, SAMPLE_WIDTH, SAMPLE_HEIGHT);
+  helloVk.createSwapchain(surface, SAMPLE_WIDTH, SAMPLE_HEIGHT);
   helloVk.createDepthBuffer();
   helloVk.createRenderPass();
   helloVk.createFrameBuffers();
