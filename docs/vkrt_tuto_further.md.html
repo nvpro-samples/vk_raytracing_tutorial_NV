@@ -1,6 +1,6 @@
 
 
-## [Jitter Camera (Anti-Aliasing)](vkrt_tuto_jitter_cam.md.htm)
+## [Jitter Camera (Anti-Aliasing)](vkrt_tuto_jitter_cam.md.html)
 
 Anti-aliases the image by accumulating small variations of rays over time. 
 
@@ -9,7 +9,7 @@ Anti-aliases the image by accumulating small variations of rays over time.
 
 ![Antialising](Images/antialiasing.png height= "300px")
 
-## [Handle Thousands of Objects](vkrt_tuto_instances.md.htm)  
+## [Handle Thousands of Objects](vkrt_tuto_instances.md.html)  
 
 The current example allocates memory for each object, each of which has several buffers.
 This shows how to get around Vulkan's limits on the total number of memory allocations by using a memory allocator.
@@ -19,7 +19,7 @@ This shows how to get around Vulkan's limits on the total number of memory alloc
 
 ![20000 'unique' objects](Images/VkInstances.png height= "300px") 
 
-## [Any Hit Shader (Transparency)](vkrt_tuto_anyhit.md.htm)
+## [Any Hit Shader (Transparency)](vkrt_tuto_anyhit.md.html)
 
 Implements transparent materials by adding a new shader to the Hit group and using the material
 information to discard hits over time.
@@ -30,7 +30,7 @@ information to discard hits over time.
 ![One use of any hit shaders](Images/anyhit.png height= "300px") 
 
 
-## [Reflections](vkrt_tuto_reflection.md.htm)
+## [Reflections](vkrt_tuto_reflection.md.html)
 
 Reflections can be implemented by shooting new rays from the closest hit shader, or by iteratively shooting them from
 the raygen shader. This example shows the limitations and differences of these implementations.
@@ -41,7 +41,7 @@ the raygen shader. This example shows the limitations and differences of these i
 ![Hundreds of Reflections](Images/reflections.png height= "300px") 
 
 
-## [Multiple Closest Hits Shader and Shader Records](vkrt_tuto_manyhits.md.htm)
+## [Multiple Closest Hits Shader and Shader Records](vkrt_tuto_manyhits.md.html)
 
 Explains how to add more closest hit shaders, choose which instance uses which shader, and add data per SBT that can be
 retrieved in the shader, and more.
@@ -53,7 +53,7 @@ retrieved in the shader, and more.
 ![Different Closest Hit and Shader Record](Images/manyhits.png height= "300px") 
 
 
-## [Animation](vkrt_tuto_animation.md.htm)
+## [Animation](vkrt_tuto_animation.md.html)
 
 This tutorial shows how animating the transformation matrices of the instances (TLAS) 
 and animating the vertices of an object (BLAS) in a compute shader could be done.
