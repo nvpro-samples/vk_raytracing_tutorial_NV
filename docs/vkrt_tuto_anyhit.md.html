@@ -52,7 +52,7 @@ layout(binding = 1, set = 1, scalar) buffer MatColorBufferObject { WaveFrontMate
 ~~~~ 
 
 !!! Note
-    You can find the source of `random.glsl` in the Antialiasing Tutorial [here](../ray_tracing_jitter_cam/README.md#toc1.1).
+    You can find the source of `random.glsl` in the Antialiasing Tutorial [here](vkrt_tuto_jitter_cam.md.html#environmentsetup/randomfunctions).
 
 
 For the any hit shader, we need to know which material we hit, and whether that material supports transparency. If it is
@@ -175,7 +175,7 @@ geometry.setFlags(vk::GeometryFlagBitsNV::eNoDuplicateAnyHitInvocation);
 
 ## `raytrace.rgen`
 
-If you have done the previous [Jitter Camera/Antialiasing](../ray_tracing_jitter_cam) tutorial,
+If you have done the previous [Jitter Camera/Antialiasing](vkrt_tuto_jitter_cam.md.html) tutorial,
 you will need just a few changes.
 
 First, `seed` will need to be available in the any hit shader, which is the reason we have added it to the hitPayload structure.
@@ -229,11 +229,11 @@ d 0.5
 
 # Accumulation
 
-As mentioned earlier, for the effect to work, we need to accumulate frames over time. Please implement the following from [Jitter Camera/Antialiasing](vkrt_tuto_jitter_cam.md):
+As mentioned earlier, for the effect to work, we need to accumulate frames over time. Please implement the following from [Jitter Camera/Antialiasing](vkrt_tuto_jitter_cam.md.html):
 
-* [Frame Number](vkrt_tuto_jitter_cam.md.htm#toc1.2)
-* [Storing or Updating](vkrt_tuto_jitter_cam.md.htm#toc1.4)
-* [Application Frame Update](vkrt_tuto_jitter_cam.md.htm#toc2)
+* [Frame Number](vkrt_tuto_jitter_cam.md.html#environmentsetup/framenumber)
+* [Storing or Updating](vkrt_tuto_jitter_cam.md.html#environmentsetup/storingorupdating)
+* [Application Frame Update](vkrt_tuto_jitter_cam.md.html#applicationframeupdate)
 
 
 # Fixing Pipeline
