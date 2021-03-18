@@ -1,34 +1,27 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.5)
 project(vk_raytracing_tutorial)
 
 
 #####################################################################################
 # look for shared_sources 1) as a sub-folder 2) at some other locations
-# this cannot be put anywhere else since we still didn't find CMakeLists_include.txt yet
+# this cannot be put anywhere else since we still didn't find setup.cmake yet
 #
-if(NOT BASE_DIRECTORY) # if not defined, it means this cmake file was called as the first entry point and not included
-  # check if the external repository is outside or inside the project (as a sub-module)
-  # testing the file CMakeLists_include.txt because when sub-modules are not cloned, the folders are still there...
-  # we also assume here that if shared_sources is there, shared_external is, too...
-  SET(BASE_DIRECTORY "" CACHE FILEPATH "folder containing shared_sources")
-  SET(ADD_SUBDIR_BELOW 1)
-  if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/shared_sources/CMakeLists_include.txt)
-    SET(BASE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-  elseif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../shared_sources/CMakeLists_include.txt)
-    SET(BASE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..)
-  elseif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../../shared_sources/CMakeLists_include.txt)
-    SET(BASE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../..)
-  else()
-  endif()
-endif(NOT BASE_DIRECTORY)
+if(NOT BASE_DIRECTORY)
+
+  find_path(BASE_DIRECTORY
+    NAMES shared_sources/cmake/setup.cmake
+    PATHS ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/.. ${CMAKE_CURRENT_SOURCE_DIR}/../.. 
+    REQUIRED
+    DOC "Directory containing shared_sources"
+    )
+endif()
+if(EXISTS ${BASE_DIRECTORY}/shared_sources/cmake/setup.cmake)
+  include(${BASE_DIRECTORY}/shared_sources/cmake/setup.cmake)
+else()
+  message(FATAL_ERROR "could not find base directory, please set BASE_DIRECTORY to folder containing shared_sources")
+endif()
 
 set(CMAKE_CXX_STANDARD 17)
-
- if(EXISTS ${BASE_DIRECTORY}/shared_sources/CMakeLists_include.txt)
-   INCLUDE(${BASE_DIRECTORY}/shared_sources/CMakeLists_include.txt)
- else()
-   Message(FATAL_ERROR "could not find base directory, please set BASE_DIRECTORY to folder containing shared_sources")
- endif()
 
 _add_package_VulkanSDK()
 _add_package_ImGUI()
@@ -47,3 +40,5 @@ add_subdirectory(ray_tracing_reflections)
 add_subdirectory(ray_tracing_instances)
 add_subdirectory(ray_tracing_intersection)
 
+install(DIRECTORY "media" CONFIGURATIONS Release DESTINATION "bin_${ARCH}")
+install(DIRECTORY "media" CONFIGURATIONS Debug DESTINATION "bin_${ARCH}_debug")

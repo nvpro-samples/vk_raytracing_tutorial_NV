@@ -845,8 +845,10 @@ void HelloVulkan::createRtShaderBindingTable()
   uint32_t sbtSize = groupCount * baseAlignment;
 
   std::vector<uint8_t> shaderHandleStorage(sbtSize);
-  m_device.getRayTracingShaderGroupHandlesNV(m_rtPipeline, 0, groupCount, sbtSize,
-                                             shaderHandleStorage.data());
+  auto res = m_device.getRayTracingShaderGroupHandlesNV(m_rtPipeline, 0, groupCount, sbtSize,
+                                                        shaderHandleStorage.data());
+  assert(res == vk::Result::eSuccess);
+
 
   // Retrieve the handle pointers
   std::vector<uint8_t*> handles(groupCount);

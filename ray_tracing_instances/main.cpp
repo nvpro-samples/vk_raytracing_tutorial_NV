@@ -35,7 +35,7 @@
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
 #include "imgui.h"
-#include "imgui_impl_glfw.h"
+#include "imgui/backends/imgui_impl_glfw.h"
 
 #include "hello_vulkan.h"
 #include "nvh/cameramanipulator.hpp"
@@ -112,13 +112,13 @@ int main(int argc, char** argv)
   }
 
   // setup some basic things for the sample, logging file for example
-  NVPSystem system(argv[0], PROJECT_NAME);
+  NVPSystem system(PROJECT_NAME);
 
   // Search path for shaders and other media
   defaultSearchPaths = {
-      PROJECT_ABSDIRECTORY,        // shaders
-      PROJECT_ABSDIRECTORY "../",  // media
-      PROJECT_NAME,                // installed: shaders + media
+      NVPSystem::exePath() + PROJECT_RELDIRECTORY,        // shaders
+      NVPSystem::exePath() + PROJECT_RELDIRECTORY "../",  // media
+      PROJECT_NAME,                                       // installed: shaders + media
       NVPSystem::exePath() + std::string(PROJECT_NAME),
   };
 
@@ -297,7 +297,7 @@ int main(int argc, char** argv)
       // Rendering tonemapper
       helloVk.drawPost(cmdBuff);
       // Rendering UI
-      ImGui::RenderDrawDataVK(cmdBuff, ImGui::GetDrawData());
+      ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmdBuff);
       cmdBuff.endRenderPass();
     }
 

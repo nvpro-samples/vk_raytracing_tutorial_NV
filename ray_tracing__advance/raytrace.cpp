@@ -379,8 +379,10 @@ void Raytracer::createRtShaderBindingTable()
   uint32_t sbtSize = groupCount * baseAlignment;
 
   std::vector<uint8_t> shaderHandleStorage(sbtSize);
-  m_device.getRayTracingShaderGroupHandlesNV(m_rtPipeline, 0, groupCount, sbtSize,
-                                             shaderHandleStorage.data());
+  auto res = m_device.getRayTracingShaderGroupHandlesNV(m_rtPipeline, 0, groupCount, sbtSize,
+                                                        shaderHandleStorage.data());
+  assert(res == vk::Result::eSuccess);
+
   // Write the handles in the SBT
   m_rtSBTBuffer = m_alloc->createBuffer(sbtSize, vk::BufferUsageFlagBits::eTransferSrc,
                                         vk::MemoryPropertyFlagBits::eHostVisible
