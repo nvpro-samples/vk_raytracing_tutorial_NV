@@ -24,7 +24,7 @@ methods and functions. The sections are organized by components, with subsection
 <script type="preformatted">
 This tutorial highlights the steps to add ray tracing to an existing Vulkan application, and assumes a working knowledge
 of Vulkan in general. The code verbosity of classical components such as swapchain management, render passes etc. is
-reduced using [C++ API helpers](https://github.com/nvpro-samples/shared_sources/tree/master/nvvk) and
+reduced using [C++ API helpers](https://github.com/nvpro-samples/nvpro_core/tree/master/nvvk) and
 NVIDIA's [nvpro-samples](https://github.com/nvpro-samples/build_all) framework. This framework contains many advanced
 examples and best practices for Vulkan and OpenGL. We also use a helper for the creation of the ray tracing acceleration
 structures, but we will document its contents extensively in this tutorial. The code is further simplified by using the
@@ -48,17 +48,14 @@ The directory `ray_tracing__simple` is the end result of this tutorial.
 
 Besides the current repository, you will also need to clone or download the following repositories:
 
-* [shared_sources](https://github.com/nvpro-samples/shared_sources): The primary framework that all samples depend on.
-* [shared_external](https://github.com/nvpro-samples/shared_external): Third party libraries that are provided pre-compiled, mostly for Windows x64 / MSVC.
+* [nvpro_core](https://github.com/nvpro-samples/nvpro_core): The primary framework that all samples depend on.
 
 The directory structure should be looking like:
 
 **********************************************************
 *   \ 
 *   |
-*   +-- 📂 shared_external
-*   |
-*   +-- 📂 shared_sources
+*   +-- 📂 nvpro_core
 *   |   
 *   +-- 📂 vk_raytracing_tutorial
 *   |   |

@@ -1,29 +1,22 @@
-/* Copyright (c) 2014-2018, NVIDIA CORPORATION. All rights reserved.
+/*
+ * Copyright (c) 2014-2021, NVIDIA CORPORATION.  All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *  * Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *  * Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *  * Neither the name of NVIDIA CORPORATION nor the names of its
- *    contributors may be used to endorse or promote products derived
- *    from this software without specific prior written permission.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ``AS IS'' AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
- * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-FileCopyrightText: Copyright (c) 2014-2021 NVIDIA CORPORATION
+ * SPDX-License-Identifier: Apache-2.0
  */
+
 
 #include <sstream>
 #include <vulkan/vulkan.hpp>
@@ -31,12 +24,13 @@
 extern std::vector<std::string> defaultSearchPaths;
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "fileformats/stb_image.h"
 #include "obj_loader.h"
+#include "stb_image.h"
 
 #include "hello_vulkan.h"
-#include "nvh//cameramanipulator.hpp"
+#include "nvh/cameramanipulator.hpp"
 #include "nvvk/descriptorsets_vk.hpp"
+#include "nvvk/images_vk.hpp"
 #include "nvvk/pipeline_vk.hpp"
 
 #include "nvh/fileoperations.hpp"
@@ -78,9 +72,9 @@ void HelloVulkan::updateUniformBuffer()
   ubo.proj           = nvmath::perspectiveVK(CameraManip.getFov(), aspectRatio, 0.1f, 1000.0f);
   //ubo.proj[1][1] *= -1;  // Inverting Y for Vulkan
   ubo.viewInverse = nvmath::invert(ubo.view);
-  void* data      = m_device.mapMemory(m_cameraMat.allocation, 0, sizeof(ubo));
+  void* data      = m_alloc.map(m_cameraMat);
   memcpy(data, &ubo, sizeof(ubo));
-  m_device.unmapMemory(m_cameraMat.allocation);
+  m_alloc.unmap(m_cameraMat);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -313,7 +307,8 @@ void HelloVulkan::createTextureImages(const vk::CommandBuffer&        cmdBuf,
       o << "media/textures/" << texture;
       std::string txtFile = nvh::findFile(o.str(), defaultSearchPaths);
 
-      stbi_uc* stbi_pixels = stbi_load(txtFile.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+      stbi_uc* stbi_pixels =
+          stbi_load(txtFile.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 
       std::array<stbi_uc, 4> color{255u, 0u, 255u, 255u};
 
@@ -331,7 +326,7 @@ void HelloVulkan::createTextureImages(const vk::CommandBuffer&        cmdBuf,
       auto imageCreateInfo = nvvk::makeImage2DCreateInfo(imgSize, format, vkIU::eSampled, true);
 
       {
-        nvvk::ImageDedicated image =
+        nvvk::Image image =
             m_alloc.createImage(cmdBuf, bufferSize, pixels, imageCreateInfo);
         nvvk::cmdGenerateMipmaps(cmdBuf, image.image, format, imgSize, imageCreateInfo.mipLevels);
         vk::ImageViewCreateInfo ivInfo =
@@ -444,7 +439,7 @@ void HelloVulkan::createOffscreenRender()
                                                            | vk::ImageUsageFlagBits::eStorage);
 
 
-    nvvk::ImageDedicated    image  = m_alloc.createImage(colorCreateInfo);
+    nvvk::Image    image  = m_alloc.createImage(colorCreateInfo);
     vk::ImageViewCreateInfo ivInfo = nvvk::makeImageViewCreateInfo(image.image, colorCreateInfo);
     m_offscreenColor               = m_alloc.createTexture(image, ivInfo, vk::SamplerCreateInfo());
     m_offscreenColor.descriptor.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
