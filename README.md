@@ -7,6 +7,9 @@
 
 There is a newer version of this tutorial, based on VK_KHR_ray_tracing extension.
 * GitHub: https://github.com/nvpro-samples/vk_raytracing_tutorial_KHR
+
+This repository about the NV extension has been archived, we recommend using the 
+KHR extension and following the above repository for future updates.
 ******************************************************************************************
 
 The focus of this project and the provided code is to showcase a basic integration of
